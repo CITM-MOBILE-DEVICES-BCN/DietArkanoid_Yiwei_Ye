@@ -70,11 +70,28 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Collided with: " + collision.gameObject.name);
+        //Debug.Log("Collided with: " + collision.gameObject.name);
         if (isLaunched)
         {
             // Increase speed after each collision
             currentSpeed = Mathf.Min(currentSpeed + speedIncreaseRate, maxSpeed);
+
+            // Check if the collision is with a brick
+            Brick brick = collision.gameObject.GetComponent<Brick>();
+
+            Debug.Log("Hit brick: " + brick.name);
+            if (brick != null)
+            {
+                Debug.Log("Hit brick: " + brick.gameObject.name);
+                brick.Hit();
+
+                // Changes: Check if the brick should be destroyed after hitting it
+                if (brick.ShouldBeDestroyed())
+                {
+                    Destroy(brick.gameObject);
+                    Debug.Log("Brick destroyed");
+                }
+            }
 
             // Normal collision behavior (bouncing)
             Vector2 incomingVelocity = rb.velocity;
@@ -82,7 +99,7 @@ public class BallController : MonoBehaviour
             Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
             rb.velocity = newDirection * currentSpeed;
 
-            Debug.Log("Ball collided with: " + collision.gameObject.name + ", New velocity: " + rb.velocity);
+            //Debug.Log("Ball collided with: " + collision.gameObject.name + ", New velocity: " + rb.velocity);
         }
     }
 

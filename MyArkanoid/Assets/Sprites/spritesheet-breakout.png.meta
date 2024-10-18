@@ -143,7 +143,7 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 31
-        y: 258
+        y: 257
         width: 50
         height: 15
       alignment: 0
@@ -160,7 +160,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: RedBrick_0
+      name: StrongBrick_0
       rect:
         serializedVersion: 2
         x: 32
@@ -180,6 +180,48 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: UnbreakableBrick_0
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 33
+        width: 32
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d44743ba20e1c9644baddd0832e8e278
+      internalID: -143370436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NormalBrick_0
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 129
+        width: 32
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 912f29a4c78458e49871837083623db8
+      internalID: 549958212
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -193,8 +235,10 @@ TextureImporter:
     nameFileIdTable:
       BigBall: -133075567
       DefaultPlatform: -1679274465
-      RedBrick_0: -1260520811
+      NormalBrick_0: 549958212
       SmallBall: 592615035
+      StrongBrick_0: -1260520811
+      UnbreakableBrick_0: -143370436
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
