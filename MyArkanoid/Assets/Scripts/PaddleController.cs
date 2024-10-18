@@ -6,6 +6,7 @@ public class PaddleController : MonoBehaviour
     public float paddleSpeed = 10f;
     public float paddleWidth = 2f;
     public Slider controlSlider;
+    public float maxBounceAngle = 75f;
 
     private float minX;
     private float maxX;
@@ -16,7 +17,6 @@ public class PaddleController : MonoBehaviour
         mainCamera = Camera.main;
         CalculateBoundaries();
 
-        // Ensure the slider is set up correctly
         if (controlSlider != null)
         {
             controlSlider.minValue = 0f;
@@ -46,16 +46,12 @@ public class PaddleController : MonoBehaviour
 
     private void OnSliderValueChanged(float value)
     {
-        // Calculate the new X position based on the slider value
         float newX = Mathf.Lerp(minX, maxX, value);
-
-        // Update the paddle position
         Vector3 newPosition = transform.position;
         newPosition.x = newX;
         transform.position = newPosition;
     }
 
-    // Optional: Add a method for automatic movement (as mentioned in the instructions)
     public void AutoMove(float targetX)
     {
         targetX = Mathf.Clamp(targetX, minX, maxX);
@@ -63,9 +59,27 @@ public class PaddleController : MonoBehaviour
         controlSlider.value = sliderValue;
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ball"))
+        {
+            Rigidbody2D ballRb = collision.gameObject.GetComponent<Rigidbody2D>();
+            Vector3 hitPoint = collision.contacts[0].point;
+            Vector3 paddleCenter = new Vector3(transform.position.x, transform.position.y);
+
+            float offset = hitPoint.x - paddleCenter.x;
+            float width = paddleWidth / 2f;
+            float currentAngle = Vector2.SignedAngle(Vector2.up, ballRb.velocity);
+            float bounceAngle = (offset / width) * maxBounceAngle;
+            float newAngle = Mathf.Clamp(currentAngle + bounceAngle, -maxBounceAngle, maxBounceAngle);
+
+            Quaternion rotation = Quaternion.AngleAxis(newAngle, Vector3.forward);
+            ballRb.velocity = rotation * Vector2.up * ballRb.velocity.magnitude;
+        }
+    }
+
     private void OnDrawGizmos()
     {
-        // Visualize the paddle's movement range in the editor
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(new Vector3(minX, transform.position.y, 0), new Vector3(maxX, transform.position.y, 0));
     }
