@@ -66,11 +66,19 @@ public class BallController : MonoBehaviour
             // Increase speed after each collision
             currentSpeed = Mathf.Min(currentSpeed + speedIncreaseRate, maxSpeed);
 
-            // Check if the ball is below the paddle (screen bottom)
-            if (transform.position.y < GameObject.FindGameObjectWithTag("Paddle").transform.position.y)
+            // Check if the ball hit the bottom boundary
+            if (BoundaryManager.Instance.IsBottomBoundary(collision))
             {
                 GameManager.Instance.LoseLife();
                 ResetBall();
+            }
+            else
+            {
+                // Normal collision behavior (bouncing)
+                Vector2 incomingVelocity = rb.velocity;
+                Vector2 normal = collision.contacts[0].normal;
+                Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
+                rb.velocity = newDirection * currentSpeed;
             }
         }
     }
