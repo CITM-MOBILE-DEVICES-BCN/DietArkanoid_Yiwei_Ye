@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public event Action<bool> OnAutoPlayToggled;
 
     private PaddleController paddleController;
+    private BallController ballController;
 
     private void Awake()
     {
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour
     {
         InitializeGame();
         paddleController = FindObjectOfType<PaddleController>();
+        ballController = FindObjectOfType<BallController>();
     }
 
     private void InitializeGame()
@@ -56,6 +58,7 @@ public class GameManager : MonoBehaviour
             HighScore = Score;
             SaveHighScore();
         }
+        Debug.Log("Score: " + Score);
     }
 
     public void LoseLife()
@@ -67,18 +70,20 @@ public class GameManager : MonoBehaviour
         {
             GameOver();
         }
+        Debug.Log("Lives: " + Lives);
     }
 
     public void AdvanceLevel()
     {
         CurrentLevel++;
         OnLevelChanged?.Invoke(CurrentLevel);
+        Debug.Log("Level: " + CurrentLevel);
     }
 
     private void GameOver()
     {
-        // TODO: Implement game over logic
         Debug.Log("Game Over");
+        // TODO: Implement game over logic
     }
 
     private void LoadHighScore()

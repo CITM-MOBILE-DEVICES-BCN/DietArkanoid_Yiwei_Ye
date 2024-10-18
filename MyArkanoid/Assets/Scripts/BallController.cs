@@ -40,6 +40,14 @@ public class BallController : MonoBehaviour
 
         // Update GameManager for auto-play
         GameManager.Instance.UpdateAutoPlay(transform.position);
+
+        // Check if ball is below the bottom boundary
+        if (BoundaryManager.Instance.IsBelowBottomBoundary(transform.position))
+        {
+            Debug.Log("Ball is below bottom boundary");
+            GameManager.Instance.LoseLife();
+            ResetBall();
+        }
     }
 
     private void FixedUpdate()
@@ -57,29 +65,24 @@ public class BallController : MonoBehaviour
         float randomDirection = Random.Range(-1f, 1f);
         Vector2 direction = new Vector2(randomDirection, 1f).normalized;
         rb.velocity = direction * currentSpeed;
+        Debug.Log("Ball launched with velocity: " + rb.velocity);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        Debug.Log("Collided with: " + collision.gameObject.name);
         if (isLaunched)
         {
             // Increase speed after each collision
             currentSpeed = Mathf.Min(currentSpeed + speedIncreaseRate, maxSpeed);
 
-            // Check if the ball hit the bottom boundary
-            if (BoundaryManager.Instance.IsBottomBoundary(collision))
-            {
-                GameManager.Instance.LoseLife();
-                ResetBall();
-            }
-            else
-            {
-                // Normal collision behavior (bouncing)
-                Vector2 incomingVelocity = rb.velocity;
-                Vector2 normal = collision.contacts[0].normal;
-                Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
-                rb.velocity = newDirection * currentSpeed;
-            }
+            // Normal collision behavior (bouncing)
+            Vector2 incomingVelocity = rb.velocity;
+            Vector2 normal = collision.contacts[0].normal;
+            Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
+            rb.velocity = newDirection * currentSpeed;
+
+            Debug.Log("Ball collided with: " + collision.gameObject.name + ", New velocity: " + rb.velocity);
         }
     }
 
@@ -89,5 +92,6 @@ public class BallController : MonoBehaviour
         transform.position = startPosition;
         rb.velocity = Vector2.zero;
         currentSpeed = initialSpeed;
+        Debug.Log("Ball reset to position: " + transform.position);
     }
 }

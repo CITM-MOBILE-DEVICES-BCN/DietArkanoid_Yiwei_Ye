@@ -7,6 +7,7 @@ public class BoundaryManager : MonoBehaviour
     [SerializeField] private GameObject topBoundary;
     [SerializeField] private GameObject leftBoundary;
     [SerializeField] private GameObject rightBoundary;
+    [SerializeField] private GameObject bottomBoundary;
 
     private Camera mainCamera;
 
@@ -46,6 +47,9 @@ public class BoundaryManager : MonoBehaviour
 
         // Right boundary
         SetBoundaryTransform(rightBoundary, new Vector2(1, cameraHeight), new Vector3(cameraWidth / 2, 0, 0));
+
+        // Bottom boundary
+        SetBoundaryTransform(bottomBoundary, new Vector2(cameraWidth, 1), new Vector3(0, -mainCamera.orthographicSize, 0));
     }
 
     private void SetBoundaryTransform(GameObject boundary, Vector2 scale, Vector3 position)
@@ -63,6 +67,16 @@ public class BoundaryManager : MonoBehaviour
 
     public bool IsBottomBoundary(Collision2D collision)
     {
-        return collision.gameObject.CompareTag("BottomBoundary");
+        bool isBottom = collision.gameObject == bottomBoundary;
+        if (isBottom)
+        {
+            Debug.Log("Ball hit bottom boundary");
+        }
+        return isBottom;
+    }
+
+    public bool IsBelowBottomBoundary(Vector3 position)
+    {
+        return position.y < bottomBoundary.transform.position.y;
     }
 }
