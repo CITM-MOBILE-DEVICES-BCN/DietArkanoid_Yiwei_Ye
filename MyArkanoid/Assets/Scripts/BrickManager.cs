@@ -56,8 +56,17 @@ public class BrickManager : MonoBehaviour
     {
         GameObject brickPrefab = ChooseBrickType();
         GameObject brickObject = Instantiate(brickPrefab, position, Quaternion.identity, transform);
+
+        // Changes: Ensure we're getting the correct Brick component
         Brick brick = brickObject.GetComponent<Brick>();
+        if (brick == null)
+        {
+            Debug.LogError($"Brick component not found on instantiated object: {brickObject.name}");
+            return;
+        }
+
         activeBricks.Add(brick);
+        Debug.Log($"Brick created: {brick.name}, Type: {brick.GetType().Name}, Position: {position}");
     }
 
     private GameObject ChooseBrickType()
@@ -81,7 +90,7 @@ public class BrickManager : MonoBehaviour
     public void RemoveBrick(Brick brick)
     {
         activeBricks.Remove(brick);
-        Debug.Log("Brick removed. Remaining bricks: " + activeBricks.Count);
+        Debug.Log($"Brick removed: {brick.name}. Remaining bricks: {activeBricks.Count}");
         if (activeBricks.Count == 0)
         {
             Debug.Log("All bricks destroyed. Advancing level.");

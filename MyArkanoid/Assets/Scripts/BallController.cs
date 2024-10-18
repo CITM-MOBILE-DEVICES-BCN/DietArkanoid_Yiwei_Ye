@@ -11,6 +11,16 @@ public class BallController : MonoBehaviour
     private bool isLaunched = false;
     private float currentSpeed;
 
+    private Brick GetBrickComponent(GameObject gameObject)
+    {
+        Brick brick = gameObject.GetComponent<Brick>();
+        if (brick == null)
+        {
+            brick = gameObject.GetComponentInParent<Brick>();
+        }
+        return brick;
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -70,26 +80,36 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        //Debug.Log("Collided with: " + collision.gameObject.name);
+        Debug.Log("Collided with: " + collision.gameObject.name);
         if (isLaunched)
         {
             // Increase speed after each collision
             currentSpeed = Mathf.Min(currentSpeed + speedIncreaseRate, maxSpeed);
 
-            // Check if the collision is with a brick
-            Brick brick = collision.gameObject.GetComponent<Brick>();
+            Debug.Log($"Collision details - Name: {collision.gameObject.name}, Tag: {collision.gameObject.tag}, Layer: {LayerMask.LayerToName(collision.gameObject.layer)}");
 
-            Debug.Log("Hit brick: " + brick.name);
+            // Check if the collision is with a brick
+            Brick brick = GetBrickComponent(collision.gameObject);
+
             if (brick != null)
             {
-                Debug.Log("Hit brick: " + brick.gameObject.name);
+                Debug.Log($"Hit brick: {brick.name}, Type: {brick.GetType().Name}");
                 brick.Hit();
 
                 // Changes: Check if the brick should be destroyed after hitting it
                 if (brick.ShouldBeDestroyed())
                 {
+                    Debug.Log($"Destroying brick: {brick.name}");
                     Destroy(brick.gameObject);
-                    Debug.Log("Brick destroyed");
+                }
+            }
+            else
+            {
+                Debug.Log($"Collided object is not a brick. Components on this object:");
+                Component[] components = collision.gameObject.GetComponents<Component>();
+                foreach (Component component in components)
+                {
+                    Debug.Log($"- {component.GetType().Name}");
                 }
             }
 
@@ -99,7 +119,7 @@ public class BallController : MonoBehaviour
             Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
             rb.velocity = newDirection * currentSpeed;
 
-            //Debug.Log("Ball collided with: " + collision.gameObject.name + ", New velocity: " + rb.velocity);
+            Debug.Log($"Ball velocity after collision: {rb.velocity}");
         }
     }
 
