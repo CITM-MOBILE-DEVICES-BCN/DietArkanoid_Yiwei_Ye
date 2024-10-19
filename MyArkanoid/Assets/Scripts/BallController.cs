@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
@@ -13,6 +14,7 @@ public class BallController : MonoBehaviour
     private Vector2 startPosition;
     private bool isLaunched = false;
     private float currentSpeed;
+    private Coroutine launchCoroutine;
 
     private void Awake()
     {
@@ -21,10 +23,53 @@ public class BallController : MonoBehaviour
         currentSpeed = initialSpeed;
     }
 
-    private void Start()
+    private void OnEnable()
+    {
+        GameManager.Instance.OnGameStateChanged += HandleGameStateChanged;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.Instance.OnGameStateChanged -= HandleGameStateChanged;
+    }
+
+    private void HandleGameStateChanged(GameStateManager.GameState newState)
+    {
+        if (newState == GameStateManager.GameState.Gameplay)
+        {
+            StartLaunchSequence();
+        }
+        else
+        {
+            StopLaunchSequence();
+        }
+    }
+
+    private void StartLaunchSequence()
     {
         ResetBall();
+        if (launchCoroutine != null)
+        {
+            StopCoroutine(launchCoroutine);
+        }
+        launchCoroutine = StartCoroutine(LaunchSequence());
     }
+
+    private void StopLaunchSequence()
+    {
+        if (launchCoroutine != null)
+        {
+            StopCoroutine(launchCoroutine);
+            launchCoroutine = null;
+        }
+    }
+
+    private IEnumerator LaunchSequence()
+    {
+        yield return new WaitForSeconds(2f);
+        LaunchBall();
+    }
+
 
     private void Update()
     {
@@ -33,12 +78,8 @@ public class BallController : MonoBehaviour
             // Attach the ball to the paddle before launch
             Vector3 paddlePosition = GameObject.FindGameObjectWithTag("Paddle").transform.position;
             transform.position = new Vector3(paddlePosition.x, startPosition.y, 0f);
-
-            // Launch the ball after 2 seconds
-            if (Time.timeSinceLevelLoad > 2f)
-            {
-                LaunchBall();
-            }
+            
+            
         }
 
         // Update GameManager for auto-play

@@ -4,7 +4,10 @@ using System.Collections.Generic;
 public class GameStateManager : MonoBehaviour
 {
     private Dictionary<GameState, IGameState> gameStates;
+    internal static readonly object Instance;
+
     public IGameState currentState { get; private set; }
+
 
     public enum GameState
     {

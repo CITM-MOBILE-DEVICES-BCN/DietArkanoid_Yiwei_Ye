@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     public event Action<int> OnLivesChanged;
     public event Action<int> OnLevelChanged;
     public event Action<bool> OnAutoPlayToggled;
+    public event Action<GameStateManager.GameState> OnGameStateChanged;
 
     private PaddleController paddleController;
     private BallController ballController;
@@ -128,6 +129,12 @@ public class GameManager : MonoBehaviour
     public void LevelCompleted()
     {
         gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
+    }
+
+    private void ChangeGameState(GameStateManager.GameState newState)
+    {
+        gameStateManager.ChangeState(newState);
+        OnGameStateChanged?.Invoke(newState);
     }
 
     private void TogglePause()
