@@ -1,19 +1,24 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class PaddleController : MonoBehaviour
 {
     public float paddleSpeed = 10f;
     public float paddleWidth = 2f;
     public Slider controlSlider;
+    public float maxBounceAngle = 75f;
 
     private float minX;
     private float maxX;
     private Camera mainCamera;
+    private Vector3 originalScale;
+    private Coroutine expandCoroutine;
 
     private void Start()
     {
         mainCamera = Camera.main;
+        originalScale = transform.localScale;
         CalculateBoundaries();
 
         if (controlSlider != null)
@@ -26,16 +31,6 @@ public class PaddleController : MonoBehaviour
         else
         {
             Debug.LogError("Control slider not assigned to PaddleController!");
-        }
-    }
-
-    private void Update()
-    {
-        // Allow keyboard input for paddle movement
-        float horizontalInput = Input.GetAxis("Horizontal");
-        if (horizontalInput != 0)
-        {
-            MovePaddle(horizontalInput);
         }
     }
 
@@ -55,32 +50,56 @@ public class PaddleController : MonoBehaviour
 
     private void OnSliderValueChanged(float value)
     {
-        MovePaddleToPosition(Mathf.Lerp(minX, maxX, value));
-    }
-
-    private void MovePaddle(float direction)
-    {
-        Vector3 newPosition = transform.position + Vector3.right * direction * paddleSpeed * Time.deltaTime;
-        MovePaddleToPosition(newPosition.x);
-    }
-
-    private void MovePaddleToPosition(float xPosition)
-    {
-        xPosition = Mathf.Clamp(xPosition, minX, maxX);
+        float newX = Mathf.Lerp(minX, maxX, value);
         Vector3 newPosition = transform.position;
-        newPosition.x = xPosition;
+        newPosition.x = newX;
         transform.position = newPosition;
-
-        // Update slider value
-        if (controlSlider != null)
-        {
-            controlSlider.value = Mathf.InverseLerp(minX, maxX, xPosition);
-        }
     }
 
     public void AutoMove(float targetX)
     {
-        MovePaddleToPosition(targetX);
+        targetX = Mathf.Clamp(targetX, minX, maxX);
+        float sliderValue = Mathf.InverseLerp(minX, maxX, targetX);
+        controlSlider.value = sliderValue;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ball"))
+        {
+            Rigidbody2D ballRb = collision.gameObject.GetComponent<Rigidbody2D>();
+            Vector3 hitPoint = collision.contacts[0].point;
+            Vector3 paddleCenter = new Vector3(transform.position.x, transform.position.y);
+
+            float offset = hitPoint.x - paddleCenter.x;
+            float width = paddleWidth / 2f;
+            float currentAngle = Vector2.SignedAngle(Vector2.up, ballRb.velocity);
+            float bounceAngle = (offset / width) * maxBounceAngle;
+            float newAngle = Mathf.Clamp(currentAngle + bounceAngle, -maxBounceAngle, maxBounceAngle);
+
+            Quaternion rotation = Quaternion.AngleAxis(newAngle, Vector3.forward);
+            ballRb.velocity = rotation * Vector2.up * ballRb.velocity.magnitude;
+        }
+    }
+
+    public void ExpandPaddle(float expandFactor, float duration)
+    {
+        if (expandCoroutine != null)
+        {
+            StopCoroutine(expandCoroutine);
+        }
+        expandCoroutine = StartCoroutine(ExpandPaddleCoroutine(expandFactor, duration));
+    }
+
+    private IEnumerator ExpandPaddleCoroutine(float expandFactor, float duration)
+    {
+        Vector3 expandedScale = originalScale;
+        expandedScale.x *= expandFactor;
+        transform.localScale = expandedScale;
+
+        yield return new WaitForSeconds(duration);
+
+        transform.localScale = originalScale;
     }
 
     private void OnDrawGizmos()

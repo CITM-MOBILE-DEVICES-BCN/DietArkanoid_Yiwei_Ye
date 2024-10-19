@@ -10,11 +10,20 @@ public class BrickManager : MonoBehaviour
         public float probability;
     }
 
+    [System.Serializable]
+    public class PowerUpType
+    {
+        public GameObject prefab;
+        public float probability;
+    }
+
     public List<BrickType> brickTypes;
+    public List<PowerUpType> powerUpTypes;
     public int rows = 5;
     public int columns = 10;
     public float horizontalSpacing = 0.2f;
     public float verticalSpacing = 0.2f;
+    public float powerUpChance = 0.1f;
 
     private List<Brick> activeBricks = new List<Brick>();
 
@@ -56,17 +65,16 @@ public class BrickManager : MonoBehaviour
     {
         GameObject brickPrefab = ChooseBrickType();
         GameObject brickObject = Instantiate(brickPrefab, position, Quaternion.identity, transform);
-
-        // Changes: Ensure we're getting the correct Brick component
         Brick brick = brickObject.GetComponent<Brick>();
-        if (brick == null)
+        if (brick != null)
+        {
+            activeBricks.Add(brick);
+            Debug.Log($"Brick created: {brick.name}, Type: {brick.GetType().Name}, Position: {position}");
+        }
+        else
         {
             Debug.LogError($"Brick component not found on instantiated object: {brickObject.name}");
-            return;
         }
-
-        activeBricks.Add(brick);
-        Debug.Log($"Brick created: {brick.name}, Type: {brick.GetType().Name}, Position: {position}");
     }
 
     private GameObject ChooseBrickType()
@@ -96,5 +104,39 @@ public class BrickManager : MonoBehaviour
             Debug.Log("All bricks destroyed. Advancing level.");
             GameManager.Instance.AdvanceLevel();
         }
+        else
+        {
+            TrySpawnPowerUp(brick.transform.position);
+        }
+    }
+
+    private void TrySpawnPowerUp(Vector2 position)
+    {
+        if (Random.value < powerUpChance)
+        {
+            GameObject powerUpPrefab = ChoosePowerUpType();
+            if (powerUpPrefab != null)
+            {
+                Instantiate(powerUpPrefab, position, Quaternion.identity);
+                Debug.Log($"Power-up spawned at {position}");
+            }
+        }
+    }
+
+    private GameObject ChoosePowerUpType()
+    {
+        float random = Random.value;
+        float cumulativeProbability = 0f;
+
+        foreach (PowerUpType powerUpType in powerUpTypes)
+        {
+            cumulativeProbability += powerUpType.probability;
+            if (random <= cumulativeProbability)
+            {
+                return powerUpType.prefab;
+            }
+        }
+
+        return null;
     }
 }

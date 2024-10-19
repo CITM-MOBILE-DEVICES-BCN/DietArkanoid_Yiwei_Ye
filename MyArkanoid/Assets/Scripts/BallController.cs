@@ -146,4 +146,9 @@ public class BallController : MonoBehaviour
         rb.velocity = Vector2.zero;
         currentSpeed = initialSpeed;
     }
+
+    internal void LaunchBall(Vector2 normalized)
+    {
+        throw new System.NotImplementedException();
+    }
 }
