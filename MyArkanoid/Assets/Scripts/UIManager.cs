@@ -1,3 +1,5 @@
+using TMPro;
+using TMPro.Examples;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,9 +15,10 @@ public class UIManager : MonoBehaviour
     public GameObject levelCompletedPanel;
 
     [Header("Gameplay UI")]
-    public Text scoreText;
-    public Text livesText;
-    public Text levelText;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI livesText;
+    public TextMeshProUGUI levelText;
+    
 
     [Header("Buttons")]
     public Button startGameButton;
