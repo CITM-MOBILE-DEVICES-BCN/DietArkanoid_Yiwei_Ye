@@ -1531,21 +1531,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   brickTypes:
   - prefab: {fileID: 9126222656759717026, guid: 60e086aee6b14bd42a62199db12a5b03, type: 3}
-    probability: 5
+    probability: 0.5
   - prefab: {fileID: 7844031809868030030, guid: 4716d193a584a75478626d26eb60e706, type: 3}
-    probability: 5
+    probability: 0.3
   - prefab: {fileID: 4650603301562476604, guid: eb8891c92e006b04f926901c020b1a82, type: 3}
-    probability: 5
+    probability: 0.2
   powerUpTypes:
-  - prefab: {fileID: 5317527665491702983, guid: 21fd3a25e97371148b5ee68fdbf22152, type: 3}
-    probability: 5
   - prefab: {fileID: 677282523}
-    probability: 5
+    probability: 1
   rows: 5
   columns: 5
   horizontalSpacing: 0
   verticalSpacing: 0
-  powerUpChance: 0.1
+  powerUpChance: 0.5
 --- !u!4 &1863990372
 Transform:
   m_ObjectHideFlags: 0

@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
 
     private PaddleController paddleController;
     private BallController ballController;
+    private GameStateManager gameStateManager;
 
     private void Awake()
     {
@@ -26,14 +27,12 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // Ensure GameStateManager exists in the scene
-            if (FindObjectOfType<GameStateManager>() == null)
-            {
-                GameObject gameStateManagerObject = new GameObject("GameStateManager");
-                gameStateManagerObject.AddComponent<GameStateManager>();
-            }
+            // Create GameStateManager as a child of GameManager
+            GameObject gameStateManagerObject = new GameObject("GameStateManager");
+            gameStateManagerObject.transform.SetParent(this.transform);
+            gameStateManager = gameStateManagerObject.AddComponent<GameStateManager>();
         }
-        else
+        else if (Instance != this)
         {
             Destroy(gameObject);
         }
@@ -41,7 +40,27 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        FindGameObjects();
         InitializeGame();
+        SetupEventListeners();
+    }
+
+    private void Update()
+    {
+        if (gameStateManager != null)
+        {
+            gameStateManager.UpdateState();
+        }
+
+        // Check for pause input
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            TogglePause();
+        }
+    }
+
+    private void FindGameObjects()
+    {
         paddleController = FindObjectOfType<PaddleController>();
         ballController = FindObjectOfType<BallController>();
 
@@ -56,60 +75,66 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.UpdateState();
-        }
-    }
-
-    private void InitializeGame()
+    public void InitializeGame()
     {
         Score = 0;
         Lives = 3;
         CurrentLevel = 1;
         IsAutoPlayEnabled = false;
         LoadHighScore();
+
+        UpdateUI();
+    }
+
+    private void SetupEventListeners()
+    {
+        OnScoreChanged += (score) => UIManager.Instance.UpdateScore(score);
+        OnLivesChanged += (lives) => UIManager.Instance.UpdateLives(lives);
+        OnLevelChanged += (level) => UIManager.Instance.UpdateLevel(level);
+    }
+
+    private void UpdateUI()
+    {
+        OnScoreChanged?.Invoke(Score);
+        OnLivesChanged?.Invoke(Lives);
+        OnLevelChanged?.Invoke(CurrentLevel);
     }
 
     public void StartGame()
     {
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.ChangeState(GameStateManager.GameState.Gameplay);
-        }
+        InitializeGame();
+        gameStateManager.ChangeState(GameStateManager.GameState.Gameplay);
     }
 
     public void PauseGame()
     {
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.ChangeState(GameStateManager.GameState.Paused);
-        }
+        gameStateManager.ChangeState(GameStateManager.GameState.Paused);
     }
 
     public void ResumeGame()
     {
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.ChangeState(GameStateManager.GameState.Gameplay);
-        }
+        gameStateManager.ChangeState(GameStateManager.GameState.Gameplay);
     }
 
     public void GameOver()
     {
-        if (GameStateManager.Instance != null)
-        {
-            GameStateManager.Instance.ChangeState(GameStateManager.GameState.GameOver);
-        }
+        gameStateManager.ChangeState(GameStateManager.GameState.GameOver);
     }
 
     public void LevelCompleted()
     {
-        if (GameStateManager.Instance != null)
+        gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
+    }
+
+    private void TogglePause()
+    {
+        if (gameStateManager.currentState is GameplayState)
         {
-            GameStateManager.Instance.ChangeState(GameStateManager.GameState.LevelCompleted);
+            PauseGame();
+        }
+        else if (gameStateManager.currentState is PausedState)
+        {
+            ResumeGame();
         }
     }
 
@@ -123,7 +148,6 @@ public class GameManager : MonoBehaviour
             HighScore = Score;
             SaveHighScore();
         }
-        Debug.Log("Score: " + Score);
     }
 
     public void LoseLife()
@@ -143,14 +167,12 @@ public class GameManager : MonoBehaviour
                 ballController.ResetBall();
             }
         }
-        Debug.Log("Lives: " + Lives);
     }
 
     public void AdvanceLevel()
     {
         CurrentLevel++;
         OnLevelChanged?.Invoke(CurrentLevel);
-        Debug.Log("Level: " + CurrentLevel);
     }
 
     private void LoadHighScore()
@@ -177,6 +199,4 @@ public class GameManager : MonoBehaviour
             paddleController.AutoMove(ballPosition.x);
         }
     }
-
-    // TODO: Add methods for saving and loading game state
 }

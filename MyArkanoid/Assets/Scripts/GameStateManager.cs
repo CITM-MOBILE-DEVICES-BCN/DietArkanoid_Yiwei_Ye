@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 public class GameStateManager : MonoBehaviour
 {
-    public static GameStateManager Instance { get; private set; }
-
     private Dictionary<GameState, IGameState> gameStates;
-    private IGameState currentState;
+    public IGameState currentState;
 
     public enum GameState
     {
@@ -19,16 +17,7 @@ public class GameStateManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            InitializeStates();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        InitializeStates();
     }
 
     private void Start()
@@ -58,6 +47,8 @@ public class GameStateManager : MonoBehaviour
         currentState = gameStates[newState];
         currentState.EnterState();
 
+        UIManager.Instance.ShowPanel(newState);
+
         Debug.Log($"Changed to {newState} state");
     }
 
@@ -82,18 +73,11 @@ public class MainMenuState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Main Menu State");
-        // TODO: Activate main menu UI
     }
 
-    public void UpdateState()
-    {
-        // Handle main menu interactions
-    }
+    public void UpdateState() { }
 
-    public void ExitState()
-    {
-        // TODO: Deactivate main menu UI
-    }
+    public void ExitState() { }
 }
 
 public class GameplayState : IGameState
@@ -101,7 +85,7 @@ public class GameplayState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Gameplay State");
-        // TODO: Start the game, activate gameplay elements
+        GameManager.Instance.InitializeGame();
     }
 
     public void UpdateState()
@@ -109,10 +93,7 @@ public class GameplayState : IGameState
         // Handle gameplay logic
     }
 
-    public void ExitState()
-    {
-        // TODO: Clean up gameplay elements
-    }
+    public void ExitState() { }
 }
 
 public class PausedState : IGameState
@@ -121,18 +102,13 @@ public class PausedState : IGameState
     {
         Debug.Log("Entered Paused State");
         Time.timeScale = 0;
-        // TODO: Activate pause menu UI
     }
 
-    public void UpdateState()
-    {
-        // Handle pause menu interactions
-    }
+    public void UpdateState() { }
 
     public void ExitState()
     {
         Time.timeScale = 1;
-        // TODO: Deactivate pause menu UI
     }
 }
 
@@ -141,18 +117,11 @@ public class GameOverState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Game Over State");
-        // TODO: Activate game over UI
     }
 
-    public void UpdateState()
-    {
-        // Handle game over screen interactions
-    }
+    public void UpdateState() { }
 
-    public void ExitState()
-    {
-        // TODO: Clean up game over elements
-    }
+    public void ExitState() { }
 }
 
 public class LevelCompletedState : IGameState
@@ -160,16 +129,10 @@ public class LevelCompletedState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Level Completed State");
-        // TODO: Activate level completed UI
+        GameManager.Instance.AdvanceLevel();
     }
 
-    public void UpdateState()
-    {
-        // Handle level completed screen interactions
-    }
+    public void UpdateState() { }
 
-    public void ExitState()
-    {
-        // TODO: Clean up level completed elements
-    }
+    public void ExitState() { }
 }
