@@ -73,6 +73,7 @@ public class MainMenuState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Main Menu State");
+
     }
 
     public void UpdateState() { }
