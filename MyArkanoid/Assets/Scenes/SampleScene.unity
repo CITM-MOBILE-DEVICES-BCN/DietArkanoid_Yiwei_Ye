@@ -941,7 +941,6 @@ MonoBehaviour:
   paddleSpeed: 10
   paddleWidth: 2
   controlSlider: {fileID: 2024305583}
-  maxBounceAngle: 75
 --- !u!61 &1271991829
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1099,6 +1098,7 @@ MonoBehaviour:
   initialSpeed: 5
   maxSpeed: 15
   speedIncreaseRate: 0.1
+  maxBounceAngle: 75
 --- !u!50 &1352136453
 Rigidbody2D:
   serializedVersion: 4
@@ -1479,10 +1479,10 @@ MonoBehaviour:
   - prefab: {fileID: 9126222656759717026, guid: 60e086aee6b14bd42a62199db12a5b03, type: 3}
     probability: 10
   - prefab: {fileID: 7844031809868030030, guid: 4716d193a584a75478626d26eb60e706, type: 3}
-    probability: 4
+    probability: 0
   - prefab: {fileID: 4650603301562476604, guid: eb8891c92e006b04f926901c020b1a82, type: 3}
-    probability: 4
-  rows: 3
+    probability: 0
+  rows: 5
   columns: 5
   horizontalSpacing: 0
   verticalSpacing: 0

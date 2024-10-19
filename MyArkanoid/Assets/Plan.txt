@@ -1,0 +1,53 @@
+Planning Phase (Updated):
+
+Game Architecture:
+
+Use a Singleton pattern for the GameManager to handle game state, score, and lives.
+Implement a State pattern for managing different game states (Main Menu, Gameplay, Pause, Game Over, Level Completed).
+Use an Observer pattern for updating the HUD and other UI elements.
+
+
+Core Components:
+
+Platform (player-controlled or auto-mode)
+Ball
+Bricks (multiple types with varying resistance)
+Power-ups
+
+
+Scenes:
+
+Main Menu
+Gameplay (at least 2 levels)
+Pause Menu (overlay)
+Game Over screen
+Level Completed screen
+
+
+Persistent Data:
+
+High score
+Player lives
+Current level
+Game settings (music volume, SFX volume, fullscreen, V-Sync)
+
+
+Features to Implement:
+
+Ball physics (bouncing, increasing speed)
+Brick destruction and scoring
+Lives system
+Power-up system
+Screen adaptation (Landscape and Portrait modes)
+Sound system (background music and sound effects)
+Save/Load system for game progress and settings
+V-Sync option in graphics settings
+
+
+Design Patterns to Use:
+
+Singleton: GameManager, AudioManager
+State: GameStateManager
+Observer: UIManager, ScoreManager
+Factory: BrickFactory, PowerUpFactory
+Command: InputHandler

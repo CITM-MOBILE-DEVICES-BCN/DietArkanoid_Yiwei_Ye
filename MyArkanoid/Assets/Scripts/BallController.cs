@@ -5,6 +5,7 @@ public class BallController : MonoBehaviour
     public float initialSpeed = 5f;
     public float maxSpeed = 15f;
     public float speedIncreaseRate = 0.1f;
+    public float maxBounceAngle = 75f;
 
     private Rigidbody2D rb;
     private Vector2 startPosition;
@@ -52,9 +53,8 @@ public class BallController : MonoBehaviour
         GameManager.Instance.UpdateAutoPlay(transform.position);
 
         // Check if ball is below the bottom boundary
-        if (BoundaryManager.Instance.IsBelowBottomBoundary(transform.position))
+        if (transform.position.y < Camera.main.ScreenToWorldPoint(Vector3.zero).y)
         {
-            Debug.Log("Ball is below bottom boundary");
             GameManager.Instance.LoseLife();
             ResetBall();
         }
@@ -72,54 +72,58 @@ public class BallController : MonoBehaviour
     private void LaunchBall()
     {
         isLaunched = true;
-        float randomDirection = Random.Range(-1f, 1f);
+        float randomDirection = Random.Range(-0.5f, 0.5f);
         Vector2 direction = new Vector2(randomDirection, 1f).normalized;
         rb.velocity = direction * currentSpeed;
-        Debug.Log("Ball launched with velocity: " + rb.velocity);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("Collided with: " + collision.gameObject.name);
-        if (isLaunched)
+        if (!isLaunched) return;
+
+        // Increase speed after each collision
+        currentSpeed = Mathf.Min(currentSpeed + speedIncreaseRate, maxSpeed);
+
+        Vector2 incomingVelocity = rb.velocity;
+        Vector2 normal = collision.contacts[0].normal;
+
+        // Check if the collision is with the paddle
+        if (collision.gameObject.CompareTag("Paddle"))
         {
-            // Increase speed after each collision
-            currentSpeed = Mathf.Min(currentSpeed + speedIncreaseRate, maxSpeed);
+            // Calculate the hit position relative to the paddle center
+            float paddleWidth = collision.transform.localScale.x;
+            float hitPosition = (transform.position.x - collision.transform.position.x) / (paddleWidth / 2);
 
-            Debug.Log($"Collision details - Name: {collision.gameObject.name}, Tag: {collision.gameObject.tag}, Layer: {LayerMask.LayerToName(collision.gameObject.layer)}");
+            // Calculate the bounce angle
+            float bounceAngle = hitPosition * maxBounceAngle;
+            Vector2 newDirection = Quaternion.Euler(0, 0, bounceAngle) * Vector2.up;
 
-            // Check if the collision is with a brick
-            Brick brick = GetBrickComponent(collision.gameObject);
-
-            if (brick != null)
-            {
-                Debug.Log($"Hit brick: {brick.name}, Type: {brick.GetType().Name}");
-                brick.Hit();
-
-                // Changes: Check if the brick should be destroyed after hitting it
-                if (brick.ShouldBeDestroyed())
-                {
-                    Debug.Log($"Destroying brick: {brick.name}");
-                    Destroy(brick.gameObject);
-                }
-            }
-            else
-            {
-                Debug.Log($"Collided object is not a brick. Components on this object:");
-                Component[] components = collision.gameObject.GetComponents<Component>();
-                foreach (Component component in components)
-                {
-                    Debug.Log($"- {component.GetType().Name}");
-                }
-            }
-
-            // Normal collision behavior (bouncing)
-            Vector2 incomingVelocity = rb.velocity;
-            Vector2 normal = collision.contacts[0].normal;
-            Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
             rb.velocity = newDirection * currentSpeed;
+        }
+        else
+        {
+            // For other collisions (walls, bricks)
+            Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
 
-            Debug.Log($"Ball velocity after collision: {rb.velocity}");
+            // Ensure the ball doesn't get stuck moving horizontally
+            if (Mathf.Abs(newDirection.y) < 0.1f)
+            {
+                newDirection.y = newDirection.y < 0 ? -0.1f : 0.1f;
+                newDirection = newDirection.normalized;
+            }
+
+            rb.velocity = newDirection * currentSpeed;
+        }
+
+        // Check if the collision is with a brick
+        Brick brick = GetBrickComponent(collision.gameObject);
+        if (brick != null)
+        {
+            brick.Hit();
+            if (brick.ShouldBeDestroyed())
+            {
+                Destroy(brick.gameObject);
+            }
         }
     }
 
@@ -129,6 +133,5 @@ public class BallController : MonoBehaviour
         transform.position = startPosition;
         rb.velocity = Vector2.zero;
         currentSpeed = initialSpeed;
-        Debug.Log("Ball reset to position: " + transform.position);
     }
 }

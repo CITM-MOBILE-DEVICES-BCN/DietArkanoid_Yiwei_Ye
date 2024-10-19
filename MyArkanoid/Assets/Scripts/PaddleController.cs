@@ -6,7 +6,6 @@ public class PaddleController : MonoBehaviour
     public float paddleSpeed = 10f;
     public float paddleWidth = 2f;
     public Slider controlSlider;
-    public float maxBounceAngle = 75f;
 
     private float minX;
     private float maxX;
@@ -30,6 +29,16 @@ public class PaddleController : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // Allow keyboard input for paddle movement
+        float horizontalInput = Input.GetAxis("Horizontal");
+        if (horizontalInput != 0)
+        {
+            MovePaddle(horizontalInput);
+        }
+    }
+
     private void CalculateBoundaries()
     {
         if (mainCamera != null)
@@ -46,36 +55,32 @@ public class PaddleController : MonoBehaviour
 
     private void OnSliderValueChanged(float value)
     {
-        float newX = Mathf.Lerp(minX, maxX, value);
+        MovePaddleToPosition(Mathf.Lerp(minX, maxX, value));
+    }
+
+    private void MovePaddle(float direction)
+    {
+        Vector3 newPosition = transform.position + Vector3.right * direction * paddleSpeed * Time.deltaTime;
+        MovePaddleToPosition(newPosition.x);
+    }
+
+    private void MovePaddleToPosition(float xPosition)
+    {
+        xPosition = Mathf.Clamp(xPosition, minX, maxX);
         Vector3 newPosition = transform.position;
-        newPosition.x = newX;
+        newPosition.x = xPosition;
         transform.position = newPosition;
+
+        // Update slider value
+        if (controlSlider != null)
+        {
+            controlSlider.value = Mathf.InverseLerp(minX, maxX, xPosition);
+        }
     }
 
     public void AutoMove(float targetX)
     {
-        targetX = Mathf.Clamp(targetX, minX, maxX);
-        float sliderValue = Mathf.InverseLerp(minX, maxX, targetX);
-        controlSlider.value = sliderValue;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ball"))
-        {
-            Rigidbody2D ballRb = collision.gameObject.GetComponent<Rigidbody2D>();
-            Vector3 hitPoint = collision.contacts[0].point;
-            Vector3 paddleCenter = new Vector3(transform.position.x, transform.position.y);
-
-            float offset = hitPoint.x - paddleCenter.x;
-            float width = paddleWidth / 2f;
-            float currentAngle = Vector2.SignedAngle(Vector2.up, ballRb.velocity);
-            float bounceAngle = (offset / width) * maxBounceAngle;
-            float newAngle = Mathf.Clamp(currentAngle + bounceAngle, -maxBounceAngle, maxBounceAngle);
-
-            Quaternion rotation = Quaternion.AngleAxis(newAngle, Vector3.forward);
-            ballRb.velocity = rotation * Vector2.up * ballRb.velocity.magnitude;
-        }
+        MovePaddleToPosition(targetX);
     }
 
     private void OnDrawGizmos()
