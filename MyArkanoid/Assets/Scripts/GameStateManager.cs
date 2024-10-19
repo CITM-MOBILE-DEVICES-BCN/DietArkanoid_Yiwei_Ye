@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class GameStateManager : MonoBehaviour
 {
     private Dictionary<GameState, IGameState> gameStates;
-    public IGameState currentState;
+    public IGameState currentState { get; private set; }
 
     public enum GameState
     {
@@ -73,7 +73,7 @@ public class MainMenuState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Main Menu State");
-
+        GameplayManager.Instance.DeactivateGameplayElements();
     }
 
     public void UpdateState() { }
@@ -87,14 +87,19 @@ public class GameplayState : IGameState
     {
         Debug.Log("Entered Gameplay State");
         GameManager.Instance.InitializeGame();
+        GameplayManager.Instance.ActivateGameplayElements();
+        GameplayManager.Instance.ResetBallPosition();
     }
 
     public void UpdateState()
     {
-        // Handle gameplay logic
+        // Handle ongoing gameplay logic if needed
     }
 
-    public void ExitState() { }
+    public void ExitState()
+    {
+        // Any cleanup needed when exiting gameplay state
+    }
 }
 
 public class PausedState : IGameState
@@ -118,6 +123,7 @@ public class GameOverState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Game Over State");
+        GameplayManager.Instance.DeactivateGameplayElements();
     }
 
     public void UpdateState() { }
@@ -131,6 +137,7 @@ public class LevelCompletedState : IGameState
     {
         Debug.Log("Entered Level Completed State");
         GameManager.Instance.AdvanceLevel();
+        GameplayManager.Instance.DeactivateGameplayElements();
     }
 
     public void UpdateState() { }

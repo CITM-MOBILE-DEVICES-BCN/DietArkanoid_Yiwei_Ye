@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Check for pause input
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && gameStateManager.currentState is GameplayState)
         {
             TogglePause();
         }
@@ -100,6 +100,10 @@ public class GameManager : MonoBehaviour
         OnLevelChanged?.Invoke(CurrentLevel);
     }
 
+    public void GoToMainMenu()
+    {
+        gameStateManager.ChangeState(GameStateManager.GameState.MainMenu);
+    }
     public void StartGame()
     {
         InitializeGame();
