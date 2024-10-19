@@ -147,8 +147,10 @@ public class BallController : MonoBehaviour
         currentSpeed = initialSpeed;
     }
 
-    internal void LaunchBall(Vector2 normalized)
+    public void LaunchBall(Vector2 direction)
     {
-        throw new System.NotImplementedException();
+        isLaunched = true;
+        rb.velocity = direction.normalized * currentSpeed;
+        Debug.Log("Ball launched with velocity: " + rb.velocity);
     }
 }

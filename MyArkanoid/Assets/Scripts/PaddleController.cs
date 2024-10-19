@@ -15,6 +15,30 @@ public class PaddleController : MonoBehaviour
     private Vector3 originalScale;
     private Coroutine expandCoroutine;
 
+    // Declare the collider variables
+    private BoxCollider2D physicsCollider;
+    private BoxCollider2D triggerCollider;
+
+    private void Awake()
+    {
+        // Ensure the paddle has the correct tag
+        gameObject.tag = "Paddle";
+
+        // Set up the physics collider
+        physicsCollider = GetComponent<BoxCollider2D>();
+        if (physicsCollider == null)
+        {
+            physicsCollider = gameObject.AddComponent<BoxCollider2D>();
+        }
+        physicsCollider.isTrigger = false;
+
+        // Set up the trigger collider
+        triggerCollider = gameObject.AddComponent<BoxCollider2D>();
+        triggerCollider.isTrigger = true;
+        // Make the trigger collider slightly larger than the physics collider
+        triggerCollider.size = physicsCollider.size * 1.1f;
+    }
+
     private void Start()
     {
         mainCamera = Camera.main;
@@ -82,6 +106,17 @@ public class PaddleController : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        Debug.Log($"Paddle triggered by {other.name}");
+        PowerUp powerUp = other.GetComponent<PowerUp>();
+        if (powerUp != null)
+        {
+            powerUp.Activate(this);
+            Destroy(other.gameObject);
+        }
+    }
+
     public void ExpandPaddle(float expandFactor, float duration)
     {
         if (expandCoroutine != null)
@@ -97,9 +132,17 @@ public class PaddleController : MonoBehaviour
         expandedScale.x *= expandFactor;
         transform.localScale = expandedScale;
 
+        // Update colliders
+        physicsCollider.size = new Vector2(physicsCollider.size.x * expandFactor, physicsCollider.size.y);
+        triggerCollider.size = physicsCollider.size * 1.1f;
+
         yield return new WaitForSeconds(duration);
 
         transform.localScale = originalScale;
+
+        // Reset colliders
+        physicsCollider.size = new Vector2(physicsCollider.size.x / expandFactor, physicsCollider.size.y);
+        triggerCollider.size = physicsCollider.size * 1.1f;
     }
 
     private void OnDrawGizmos()

@@ -4,7 +4,7 @@ public class MultiBallPowerUp : PowerUp
 {
     public int additionalBalls = 2;
 
-    protected override void Activate()
+    public override void Activate(PaddleController paddle)
     {
         BallController originalBall = FindObjectOfType<BallController>();
         if (originalBall != null)
@@ -15,5 +15,6 @@ public class MultiBallPowerUp : PowerUp
                 newBall.LaunchBall(Random.insideUnitCircle.normalized);
             }
         }
+        Debug.Log("Multi-Ball Power-Up activated!");
     }
 }

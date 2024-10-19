@@ -18,12 +18,13 @@ public abstract class PowerUp : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Paddle"))
+        PaddleController paddle = other.GetComponent<PaddleController>();
+        if (paddle != null)
         {
-            Activate();
+            Activate(paddle);
             Destroy(gameObject);
         }
     }
 
-    protected abstract void Activate();
+    public abstract void Activate(PaddleController paddle);
 }

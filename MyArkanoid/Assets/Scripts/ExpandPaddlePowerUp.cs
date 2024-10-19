@@ -5,12 +5,9 @@ public class ExpandPaddlePowerUp : PowerUp
     public float expandFactor = 1.5f;
     public float duration = 10f;
 
-    protected override void Activate()
+    public override void Activate(PaddleController paddle)
     {
-        PaddleController paddle = FindObjectOfType<PaddleController>();
-        if (paddle != null)
-        {
-            paddle.ExpandPaddle(expandFactor, duration);
-        }
+        paddle.ExpandPaddle(expandFactor, duration);
+        Debug.Log("Expand Paddle Power-Up activated!");
     }
 }
