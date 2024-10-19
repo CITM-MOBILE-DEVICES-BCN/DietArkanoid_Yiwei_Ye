@@ -6,21 +6,13 @@ public class BallController : MonoBehaviour
     public float maxSpeed = 15f;
     public float speedIncreaseRate = 0.1f;
     public float maxBounceAngle = 75f;
+    public float minVerticalVelocity = 0.2f;
+    public float randomBounceAngle = 10f;
 
     private Rigidbody2D rb;
     private Vector2 startPosition;
     private bool isLaunched = false;
     private float currentSpeed;
-
-    private Brick GetBrickComponent(GameObject gameObject)
-    {
-        Brick brick = gameObject.GetComponent<Brick>();
-        if (brick == null)
-        {
-            brick = gameObject.GetComponentInParent<Brick>();
-        }
-        return brick;
-    }
 
     private void Awake()
     {
@@ -90,29 +82,11 @@ public class BallController : MonoBehaviour
         // Check if the collision is with the paddle
         if (collision.gameObject.CompareTag("Paddle"))
         {
-            // Calculate the hit position relative to the paddle center
-            float paddleWidth = collision.transform.localScale.x;
-            float hitPosition = (transform.position.x - collision.transform.position.x) / (paddleWidth / 2);
-
-            // Calculate the bounce angle
-            float bounceAngle = hitPosition * maxBounceAngle;
-            Vector2 newDirection = Quaternion.Euler(0, 0, bounceAngle) * Vector2.up;
-
-            rb.velocity = newDirection * currentSpeed;
+            HandlePaddleCollision(collision);
         }
         else
         {
-            // For other collisions (walls, bricks)
-            Vector2 newDirection = Vector2.Reflect(incomingVelocity, normal).normalized;
-
-            // Ensure the ball doesn't get stuck moving horizontally
-            if (Mathf.Abs(newDirection.y) < 0.1f)
-            {
-                newDirection.y = newDirection.y < 0 ? -0.1f : 0.1f;
-                newDirection = newDirection.normalized;
-            }
-
-            rb.velocity = newDirection * currentSpeed;
+            HandleBoundaryAndBrickCollision(normal);
         }
 
         // Check if the collision is with a brick
@@ -125,6 +99,44 @@ public class BallController : MonoBehaviour
                 Destroy(brick.gameObject);
             }
         }
+    }
+
+    private void HandlePaddleCollision(Collision2D collision)
+    {
+        float paddleWidth = collision.transform.localScale.x;
+        float hitPosition = (transform.position.x - collision.transform.position.x) / (paddleWidth / 2);
+
+        float bounceAngle = hitPosition * maxBounceAngle;
+        Vector2 newDirection = Quaternion.Euler(0, 0, bounceAngle) * Vector2.up;
+
+        rb.velocity = newDirection * currentSpeed;
+    }
+
+    private void HandleBoundaryAndBrickCollision(Vector2 normal)
+    {
+        Vector2 newDirection = Vector2.Reflect(rb.velocity, normal);
+
+        // Add a small random angle to prevent repetitive patterns
+        float randomAngle = Random.Range(-randomBounceAngle, randomBounceAngle);
+        newDirection = Quaternion.Euler(0, 0, randomAngle) * newDirection;
+
+        // Ensure the ball doesn't move too horizontally
+        if (Mathf.Abs(newDirection.y) < minVerticalVelocity)
+        {
+            newDirection.y = newDirection.y < 0 ? -minVerticalVelocity : minVerticalVelocity;
+        }
+
+        rb.velocity = newDirection.normalized * currentSpeed;
+    }
+
+    private Brick GetBrickComponent(GameObject gameObject)
+    {
+        Brick brick = gameObject.GetComponent<Brick>();
+        if (brick == null)
+        {
+            brick = gameObject.GetComponentInParent<Brick>();
+        }
+        return brick;
     }
 
     public void ResetBall()
