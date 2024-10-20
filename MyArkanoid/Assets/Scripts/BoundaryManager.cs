@@ -9,6 +9,12 @@ public class BoundaryManager : MonoBehaviour
     [SerializeField] private GameObject rightBoundary;
     [SerializeField] private GameObject bottomBoundary;
 
+    [Header("Boundary Offsets")]
+    [SerializeField] private float topOffset = 0f;
+    [SerializeField] private float leftOffset = 0f;
+    [SerializeField] private float rightOffset = 0f;
+    [SerializeField] private float bottomOffset = 0f;
+
     private Camera mainCamera;
 
     private void Awake()
@@ -27,6 +33,11 @@ public class BoundaryManager : MonoBehaviour
         SetupBoundaries();
     }
 
+    private void Update()
+    {
+        UpdateBoundaries();
+    }
+
     private void SetupBoundaries()
     {
         if (mainCamera == null)
@@ -40,16 +51,16 @@ public class BoundaryManager : MonoBehaviour
         float cameraWidth = cameraHeight * screenAspect;
 
         // Top boundary
-        SetBoundaryTransform(topBoundary, new Vector2(cameraWidth, 1), new Vector3(0, mainCamera.orthographicSize, 0));
-
-        // Left boundary
-        SetBoundaryTransform(leftBoundary, new Vector2(1, cameraHeight), new Vector3(-cameraWidth / 2, 0, 0));
-
-        // Right boundary
-        SetBoundaryTransform(rightBoundary, new Vector2(1, cameraHeight), new Vector3(cameraWidth / 2, 0, 0));
+        SetBoundaryTransform(topBoundary, new Vector2(cameraWidth, 1), new Vector3(0, mainCamera.orthographicSize + topOffset, 0));
 
         // Bottom boundary
-        SetBoundaryTransform(bottomBoundary, new Vector2(cameraWidth, 1), new Vector3(0, -mainCamera.orthographicSize, 0));
+        SetBoundaryTransform(bottomBoundary, new Vector2(cameraWidth, 1), new Vector3(0, -mainCamera.orthographicSize + bottomOffset, 0));
+
+        // Left boundary
+        SetBoundaryTransform(leftBoundary, new Vector2(1, cameraHeight), new Vector3(-cameraWidth / 2 + leftOffset, 0, 0));
+
+        // Right boundary
+        SetBoundaryTransform(rightBoundary, new Vector2(1, cameraHeight), new Vector3(cameraWidth / 2 + rightOffset, 0, 0));
     }
 
     private void SetBoundaryTransform(GameObject boundary, Vector2 scale, Vector3 position)
@@ -67,16 +78,11 @@ public class BoundaryManager : MonoBehaviour
 
     public bool IsBottomBoundary(Collision2D collision)
     {
-        bool isBottom = collision.gameObject == bottomBoundary;
-        if (isBottom)
-        {
-            Debug.Log("Ball hit bottom boundary");
-        }
-        return isBottom;
+        return collision.gameObject == bottomBoundary;
     }
 
-    public bool IsBelowBottomBoundary(Vector3 position)
+    public void UpdateBoundaries()
     {
-        return position.y < bottomBoundary.transform.position.y;
+        SetupBoundaries();
     }
 }
