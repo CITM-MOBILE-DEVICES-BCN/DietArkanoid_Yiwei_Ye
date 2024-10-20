@@ -27,11 +27,11 @@ public class BrickManager : MonoBehaviour
 
     private List<Brick> activeBricks = new List<Brick>();
 
-    
-    //private void Start()
-    //{
-    //    CreateBrickField();
-    //}
+
+    private void Start()
+    {
+        //CreateBrickField();
+    }
     public void ResetBricks(int level)
     {
         ClearBricks();
@@ -69,6 +69,8 @@ public class BrickManager : MonoBehaviour
                 CreateBrick(position, level);
             }
         }
+
+        Debug.Log($"Created brick field with {rows} rows and {columns} columns for level {level}");
     }
 
     private Vector2 CalculateStartPosition(int rows, int columns)

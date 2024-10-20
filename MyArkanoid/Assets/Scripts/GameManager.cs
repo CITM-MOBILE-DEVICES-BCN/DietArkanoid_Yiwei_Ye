@@ -20,6 +20,8 @@ public class GameManager : MonoBehaviour
     private PaddleController paddleController;
     private BallController ballController;
     private GameStateManager gameStateManager;
+    private BrickManager brickManager;
+
 
     private void Awake()
     {
@@ -32,6 +34,12 @@ public class GameManager : MonoBehaviour
             GameObject gameStateManagerObject = new GameObject("GameStateManager");
             gameStateManagerObject.transform.SetParent(this.transform);
             gameStateManager = gameStateManagerObject.AddComponent<GameStateManager>();
+
+            brickManager = FindObjectOfType<BrickManager>();
+            if (brickManager == null)
+            {
+                Debug.LogError("BrickManager not found in the scene!");
+            }
         }
         else if (Instance != this)
         {
@@ -41,9 +49,12 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        FindGameObjects();
-        InitializeGame();
         SetupEventListeners();
+        LoadHighScore();
+        gameStateManager.ChangeState(GameStateManager.GameState.MainMenu);
+
+        //FindGameObjects();
+        //InitializeGame();
     }
 
     private void Update()
@@ -82,8 +93,6 @@ public class GameManager : MonoBehaviour
         Lives = 3;
         CurrentLevel = 1;
         IsAutoPlayEnabled = false;
-        LoadHighScore();
-
         UpdateUI();
     }
 
@@ -108,11 +117,11 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         InitializeGame();
-        ResetGameElements();
+        ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
     }
 
-    private void ResetGameElements()
+    private void ResetGameElements(bool resetBricks)
     {
         BallController ballController = FindObjectOfType<BallController>();
         if (ballController != null)
@@ -126,8 +135,7 @@ public class GameManager : MonoBehaviour
             paddleController.OnBallReset();
         }
 
-        BrickManager brickManager = FindObjectOfType<BrickManager>();
-        if (brickManager != null)
+        if (resetBricks && brickManager != null)
         {
             brickManager.ResetBricks(CurrentLevel);
         }
@@ -153,7 +161,7 @@ public class GameManager : MonoBehaviour
     {
         CurrentLevel++;
         OnLevelChanged?.Invoke(CurrentLevel);
-        ResetGameElements();
+        ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
     }
 
@@ -198,7 +206,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            ResetGameElements();
+            ResetGameElements(false);
         }
     }
 
