@@ -9,6 +9,9 @@ public class PaddleController : MonoBehaviour
     public Slider controlSlider;
     public float maxBounceAngle = 75f;
 
+    [Tooltip("Vertical offset from the bottom of the screen. Positive values move the paddle upwards.")]
+    public float verticalOffset = 0.5f;
+
     private float minX;
     private float maxX;
     private Camera mainCamera;
@@ -45,13 +48,19 @@ public class PaddleController : MonoBehaviour
     {
         mainCamera = Camera.main;
         originalScale = transform.localScale;
-        CalculateBoundaries();
 
         ballController = FindObjectOfType<BallController>();
         if (ballController == null)
         {
             Debug.LogError("BallController not found in the scene!");
         }
+
+        SetupSlider();
+        UpdatePaddleBoundaries();
+    }
+
+    private void SetupSlider()
+    {
         if (controlSlider != null)
         {
             controlSlider.minValue = 0f;
@@ -63,6 +72,35 @@ public class PaddleController : MonoBehaviour
         {
             Debug.LogError("Control slider not assigned to PaddleController!");
         }
+    }
+
+    private void UpdatePaddleBoundaries()
+    {
+        if (mainCamera != null)
+        {
+            float screenAspect = (float)Screen.width / Screen.height;
+            float cameraHeight = mainCamera.orthographicSize * 2;
+            float cameraWidth = cameraHeight * screenAspect;
+            float halfPaddleWidth = paddleWidth / 2f;
+
+            minX = -cameraWidth / 2 + halfPaddleWidth;
+            maxX = cameraWidth / 2 - halfPaddleWidth;
+
+            // Update paddle Y position using the verticalOffset
+            Vector3 paddlePos = transform.position;
+            paddlePos.y = -mainCamera.orthographicSize + verticalOffset;
+            transform.position = paddlePos;
+        }
+    }
+
+    private void Update()
+    {
+        // Check for screen size changes
+        if (Screen.width != mainCamera.pixelWidth || Screen.height != mainCamera.pixelHeight)
+        {
+            UpdatePaddleBoundaries();
+        }
+        UpdateVerticalPosition();
     }
 
     private void CalculateBoundaries()
@@ -106,7 +144,7 @@ public class PaddleController : MonoBehaviour
         {
             Rigidbody2D ballRb = collision.gameObject.GetComponent<Rigidbody2D>();
             Vector3 hitPoint = collision.contacts[0].point;
-            Vector3 paddleCenter = new Vector3(transform.position.x, transform.position.y);
+            Vector3 paddleCenter = transform.position;
 
             float offset = hitPoint.x - paddleCenter.x;
             float width = paddleWidth / 2f;
@@ -145,17 +183,21 @@ public class PaddleController : MonoBehaviour
         expandedScale.x *= expandFactor;
         transform.localScale = expandedScale;
 
-        // Update colliders
         physicsCollider.size = new Vector2(physicsCollider.size.x * expandFactor, physicsCollider.size.y);
         triggerCollider.size = physicsCollider.size * 1.1f;
+
+        paddleWidth *= expandFactor;
+        UpdatePaddleBoundaries();
 
         yield return new WaitForSeconds(duration);
 
         transform.localScale = originalScale;
+        paddleWidth /= expandFactor;
 
-        // Reset colliders
         physicsCollider.size = new Vector2(physicsCollider.size.x / expandFactor, physicsCollider.size.y);
         triggerCollider.size = physicsCollider.size * 1.1f;
+
+        UpdatePaddleBoundaries();
     }
 
     private void OnDrawGizmos()
@@ -167,5 +209,11 @@ public class PaddleController : MonoBehaviour
     public void OnBallReset()
     {
         hasLaunchedBall = false;
+        controlSlider.value = 0.5f;
+    }
+
+    public void UpdateVerticalPosition()
+    {
+        UpdatePaddleBoundaries();
     }
 }
