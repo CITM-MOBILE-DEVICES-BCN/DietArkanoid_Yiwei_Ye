@@ -163,4 +163,9 @@ public class PaddleController : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(new Vector3(minX, transform.position.y, 0), new Vector3(maxX, transform.position.y, 0));
     }
+
+    public void OnBallReset()
+    {
+        hasLaunchedBall = false;
+    }
 }

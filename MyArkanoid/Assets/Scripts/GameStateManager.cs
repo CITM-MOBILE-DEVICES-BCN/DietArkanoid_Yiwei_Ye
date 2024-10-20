@@ -89,9 +89,8 @@ public class GameplayState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Gameplay State");
-        GameManager.Instance.InitializeGame();
         GameplayManager.Instance.ActivateGameplayElements();
-        GameplayManager.Instance.ResetBallPosition();
+        
     }
 
     public void UpdateState()
