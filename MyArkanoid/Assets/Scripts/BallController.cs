@@ -45,14 +45,16 @@ public class BallController : MonoBehaviour
         }
     }
 
-    private void StartLaunchSequence()
+    public void StartLaunchSequence()
     {
-        ResetBall();
-        if (launchCoroutine != null)
+        if (!isLaunched)
         {
-            StopCoroutine(launchCoroutine);
+            if (launchCoroutine != null)
+            {
+                StopCoroutine(launchCoroutine);
+            }
+            launchCoroutine = StartCoroutine(LaunchSequence());
         }
-        launchCoroutine = StartCoroutine(LaunchSequence());
     }
 
     private void StopLaunchSequence()
@@ -76,10 +78,12 @@ public class BallController : MonoBehaviour
         if (!isLaunched)
         {
             // Attach the ball to the paddle before launch
-            Vector3 paddlePosition = GameObject.FindGameObjectWithTag("Paddle").transform.position;
-            transform.position = new Vector3(paddlePosition.x, startPosition.y, 0f);
-            
-            
+            GameObject paddle = GameObject.FindGameObjectWithTag("Paddle");
+            if (paddle != null)
+            {
+                Vector3 paddlePosition = paddle.transform.position;
+                transform.position = new Vector3(paddlePosition.x, startPosition.y, 0f);
+            }
         }
 
         // Update GameManager for auto-play
@@ -108,6 +112,7 @@ public class BallController : MonoBehaviour
         float randomDirection = Random.Range(-0.5f, 0.5f);
         Vector2 direction = new Vector2(randomDirection, 1f).normalized;
         rb.velocity = direction * currentSpeed;
+        Debug.Log($"Ball launched with velocity: {rb.velocity}");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

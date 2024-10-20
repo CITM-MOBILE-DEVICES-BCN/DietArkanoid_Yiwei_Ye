@@ -14,6 +14,8 @@ public class PaddleController : MonoBehaviour
     private Camera mainCamera;
     private Vector3 originalScale;
     private Coroutine expandCoroutine;
+    private BallController ballController;
+    private bool hasLaunchedBall = false;
 
     // Declare the collider variables
     private BoxCollider2D physicsCollider;
@@ -45,6 +47,11 @@ public class PaddleController : MonoBehaviour
         originalScale = transform.localScale;
         CalculateBoundaries();
 
+        ballController = FindObjectOfType<BallController>();
+        if (ballController == null)
+        {
+            Debug.LogError("BallController not found in the scene!");
+        }
         if (controlSlider != null)
         {
             controlSlider.minValue = 0f;
@@ -78,6 +85,12 @@ public class PaddleController : MonoBehaviour
         Vector3 newPosition = transform.position;
         newPosition.x = newX;
         transform.position = newPosition;
+
+        if (!hasLaunchedBall && ballController != null)
+        {
+            ballController.StartLaunchSequence();
+            hasLaunchedBall = true;
+        }
     }
 
     public void AutoMove(float targetX)
