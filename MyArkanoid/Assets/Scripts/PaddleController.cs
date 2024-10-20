@@ -12,6 +12,9 @@ public class PaddleController : MonoBehaviour
     [Tooltip("Vertical offset from the bottom of the screen. Positive values move the paddle upwards.")]
     public float verticalOffset = 0.5f;
 
+    [Tooltip("Horizontal offset from the screen edges. Lower values reduce the gap.")]
+    public float horizontalEdgeOffset = 0.1f;
+
     private float minX;
     private float maxX;
     private Camera mainCamera;
@@ -83,13 +86,25 @@ public class PaddleController : MonoBehaviour
             float cameraWidth = cameraHeight * screenAspect;
             float halfPaddleWidth = paddleWidth / 2f;
 
-            minX = -cameraWidth / 2 + halfPaddleWidth;
-            maxX = cameraWidth / 2 - halfPaddleWidth;
+            // Adjust minX and maxX using horizontalEdgeOffset
+            minX = -cameraWidth / 2 + halfPaddleWidth + horizontalEdgeOffset;
+            maxX = cameraWidth / 2 - halfPaddleWidth - horizontalEdgeOffset;
 
             // Update paddle Y position using the verticalOffset
             Vector3 paddlePos = transform.position;
             paddlePos.y = -mainCamera.orthographicSize + verticalOffset;
             transform.position = paddlePos;
+
+            // Update the slider's width to match the paddle's movement range
+            //if (controlSlider != null)
+            //{
+            //    RectTransform sliderRect = controlSlider.GetComponent<RectTransform>();
+            //    if (sliderRect != null)
+            //    {
+            //        float sliderWidth = maxX - minX;
+            //        sliderRect.sizeDelta = new Vector2(sliderWidth, sliderRect.sizeDelta.y);
+            //    }
+            //}
         }
     }
 
@@ -101,6 +116,7 @@ public class PaddleController : MonoBehaviour
             UpdatePaddleBoundaries();
         }
         UpdateVerticalPosition();
+        UpdateHorizontalBoundaries();
     }
 
     private void CalculateBoundaries()
@@ -213,6 +229,11 @@ public class PaddleController : MonoBehaviour
     }
 
     public void UpdateVerticalPosition()
+    {
+        UpdatePaddleBoundaries();
+    }
+
+    public void UpdateHorizontalBoundaries()
     {
         UpdatePaddleBoundaries();
     }
