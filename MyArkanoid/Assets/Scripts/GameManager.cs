@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Check for pause input
-        if (Input.GetKeyDown(KeyCode.Escape) && gameStateManager.currentState is GameplayState)
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             TogglePause();
         }
@@ -108,8 +108,31 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         InitializeGame();
-        gameStateManager.ChangeState(GameStateManager.GameState.Gameplay);
+        ResetGameElements();
+        ChangeGameState(GameStateManager.GameState.Gameplay);
     }
+
+    private void ResetGameElements()
+    {
+        BallController ballController = FindObjectOfType<BallController>();
+        if (ballController != null)
+        {
+            ballController.ResetBall();
+        }
+
+        PaddleController paddleController = FindObjectOfType<PaddleController>();
+        if (paddleController != null)
+        {
+            paddleController.OnBallReset();
+        }
+
+        BrickManager brickManager = FindObjectOfType<BrickManager>();
+        if (brickManager != null)
+        {
+            brickManager.ResetBricks(CurrentLevel);
+        }
+    }
+
 
     public void PauseGame()
     {
@@ -128,7 +151,10 @@ public class GameManager : MonoBehaviour
 
     public void LevelCompleted()
     {
-        gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
+        CurrentLevel++;
+        OnLevelChanged?.Invoke(CurrentLevel);
+        ResetGameElements();
+        ChangeGameState(GameStateManager.GameState.Gameplay);
     }
 
     private void ChangeGameState(GameStateManager.GameState newState)
@@ -172,11 +198,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Reset ball position
-            if (ballController != null)
-            {
-                ballController.ResetBall();
-            }
+            ResetGameElements();
         }
     }
 
@@ -205,9 +227,13 @@ public class GameManager : MonoBehaviour
 
     public void UpdateAutoPlay(Vector2 ballPosition)
     {
-        if (IsAutoPlayEnabled && paddleController != null)
+        if (IsAutoPlayEnabled)
         {
-            paddleController.AutoMove(ballPosition.x);
+            PaddleController paddleController = FindObjectOfType<PaddleController>();
+            if (paddleController != null)
+            {
+                paddleController.AutoMove(ballPosition.x);
+            }
         }
     }
 }

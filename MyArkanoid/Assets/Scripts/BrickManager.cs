@@ -19,22 +19,43 @@ public class BrickManager : MonoBehaviour
 
     public List<BrickType> brickTypes;
     public List<PowerUpType> powerUpTypes;
-    public int rows = 5;
-    public int columns = 10;
+    public int baseRows = 5;
+    public int baseColumns = 10;
     public float horizontalSpacing = 0.2f;
     public float verticalSpacing = 0.2f;
     public float powerUpChance = 0.1f;
 
     private List<Brick> activeBricks = new List<Brick>();
 
-    private void Start()
+    
+    //private void Start()
+    //{
+    //    CreateBrickField();
+    //}
+    public void ResetBricks(int level)
     {
-        CreateBrickField();
+        ClearBricks();
+        CreateBrickField(level);
     }
 
-    private void CreateBrickField()
+    private void ClearBricks()
     {
-        Vector2 startPosition = CalculateStartPosition();
+        foreach (Brick brick in activeBricks)
+        {
+            if (brick != null)
+            {
+                Destroy(brick.gameObject);
+            }
+        }
+        activeBricks.Clear();
+    }
+
+    private void CreateBrickField(int level)
+    {
+        int rows = baseRows + (level - 1) / 2;
+        int columns = baseColumns + (level - 1) / 2;
+
+        Vector2 startPosition = CalculateStartPosition(rows, columns);
 
         for (int row = 0; row < rows; row++)
         {
@@ -45,12 +66,12 @@ public class BrickManager : MonoBehaviour
                     startPosition.y - row * (1 + verticalSpacing)
                 );
 
-                CreateBrick(position);
+                CreateBrick(position, level);
             }
         }
     }
 
-    private Vector2 CalculateStartPosition()
+    private Vector2 CalculateStartPosition(int rows, int columns)
     {
         float totalWidth = columns * (1 + horizontalSpacing) - horizontalSpacing;
         float totalHeight = rows * (1 + verticalSpacing) - verticalSpacing;
@@ -61,23 +82,25 @@ public class BrickManager : MonoBehaviour
         );
     }
 
-    private void CreateBrick(Vector2 position)
+
+
+    private void CreateBrick(Vector2 position, int level)
     {
-        GameObject brickPrefab = ChooseBrickType();
+        GameObject brickPrefab = ChooseBrickType(level);
         GameObject brickObject = Instantiate(brickPrefab, position, Quaternion.identity, transform);
+
         Brick brick = brickObject.GetComponent<Brick>();
-        if (brick != null)
-        {
-            activeBricks.Add(brick);
-            Debug.Log($"Brick created: {brick.name}, Type: {brick.GetType().Name}, Position: {position}");
-        }
-        else
+        if (brick == null)
         {
             Debug.LogError($"Brick component not found on instantiated object: {brickObject.name}");
+            return;
         }
+
+        brick.SetDifficulty(level);
+        activeBricks.Add(brick);
     }
 
-    private GameObject ChooseBrickType()
+    private GameObject ChooseBrickType(int level)
     {
         float random = Random.value;
         float cumulativeProbability = 0f;
@@ -91,18 +114,15 @@ public class BrickManager : MonoBehaviour
             }
         }
 
-        // Default to the first brick type if probabilities don't sum to 1
         return brickTypes[0].prefab;
     }
 
     public void RemoveBrick(Brick brick)
     {
         activeBricks.Remove(brick);
-        Debug.Log($"Brick removed: {brick.name}. Remaining bricks: {activeBricks.Count}");
         if (activeBricks.Count == 0)
         {
-            Debug.Log("All bricks destroyed. Advancing level.");
-            GameManager.Instance.AdvanceLevel();
+            GameManager.Instance.LevelCompleted();
         }
         else
         {

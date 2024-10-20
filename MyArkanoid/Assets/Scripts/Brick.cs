@@ -2,10 +2,12 @@ using UnityEngine;
 
 public class Brick : MonoBehaviour
 {
-    [SerializeField] protected int hitPoints = 1;
-    [SerializeField] protected int scoreValue = 10;
+    [SerializeField] protected int baseHitPoints = 1;
+    [SerializeField] protected int baseScoreValue = 10;
     [SerializeField] protected Color[] stateColors;
 
+    protected int hitPoints;
+    protected int scoreValue;
     protected SpriteRenderer spriteRenderer;
     protected BrickManager brickManager;
 
@@ -18,6 +20,13 @@ public class Brick : MonoBehaviour
         {
             Debug.LogError("BrickManager not found in the scene!");
         }
+        UpdateColor();
+    }
+
+    public virtual void SetDifficulty(int level)
+    {
+        hitPoints = baseHitPoints + (level - 1) / 3;
+        scoreValue = baseScoreValue * level;
         UpdateColor();
     }
 
