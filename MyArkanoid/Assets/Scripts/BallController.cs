@@ -197,8 +197,12 @@ public class BallController : MonoBehaviour
 
     public void LaunchBall(Vector2 direction)
     {
-        isLaunched = true;
-        rb.velocity = direction.normalized * currentSpeed;
-        Debug.Log("Ball launched with velocity: " + rb.velocity);
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody2D>();
+        }
+
+        rb.velocity = direction.normalized * initialSpeed;
+        Debug.Log($"Ball {gameObject.name} launched with velocity: {rb.velocity}");
     }
 }

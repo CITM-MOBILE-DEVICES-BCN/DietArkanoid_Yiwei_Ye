@@ -19,10 +19,20 @@ public class MultiBallPowerUp : PowerUp
                 {
                     rb = newBall.gameObject.AddComponent<Rigidbody2D>();
                 }
-                rb.velocity = Random.insideUnitCircle.normalized * originalBall.GetComponent<Rigidbody2D>().velocity.magnitude;
+
+                // Set up the Rigidbody2D properties
+                rb.isKinematic = false;
+                rb.gravityScale = 0f;
+                rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+                // Launch the new ball in a random direction
+                Vector2 randomDirection = Random.insideUnitCircle.normalized;
+                newBall.LaunchBall(randomDirection);
 
                 // Add a component to destroy the ball when it touches the bottom boundary
                 newBall.gameObject.AddComponent<DestroyOnBottomBoundary>();
+
+                Debug.Log($"Spawned additional ball {i + 1}. Initial velocity: {rb.velocity}");
             }
         }
         Debug.Log($"Multi-Ball Power-Up activated! Spawned {additionalBalls} additional balls.");
