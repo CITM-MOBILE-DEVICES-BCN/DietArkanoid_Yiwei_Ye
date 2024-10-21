@@ -9,6 +9,8 @@ public class PaddleController : MonoBehaviour
     public Slider controlSlider;
     public float maxBounceAngle = 75f;
 
+
+
     [Tooltip("Vertical offset from the bottom of the screen. Positive values move the paddle upwards.")]
     public float verticalOffset = 0.5f;
 
@@ -19,13 +21,20 @@ public class PaddleController : MonoBehaviour
     private float maxX;
     private Camera mainCamera;
     private Vector3 originalScale;
+
     private Coroutine expandCoroutine;
+    private float currentExpandFactor = 1f;
+    private float currentPaddleWidth;
+
+
     private BallController ballController;
     private bool hasLaunchedBall = false;
 
     // Declare the collider variables
     private BoxCollider2D physicsCollider;
     private BoxCollider2D triggerCollider;
+
+
 
     private void Awake()
     {
@@ -51,6 +60,8 @@ public class PaddleController : MonoBehaviour
     {
         mainCamera = Camera.main;
         originalScale = transform.localScale;
+        currentPaddleWidth = paddleWidth;
+
 
         ballController = FindObjectOfType<BallController>();
         if (ballController == null)
@@ -84,7 +95,7 @@ public class PaddleController : MonoBehaviour
             float screenAspect = (float)Screen.width / Screen.height;
             float cameraHeight = mainCamera.orthographicSize * 2;
             float cameraWidth = cameraHeight * screenAspect;
-            float halfPaddleWidth = paddleWidth / 2f;
+            float halfPaddleWidth = currentPaddleWidth / 2f;
 
             // Adjust minX and maxX using horizontalEdgeOffset
             minX = -cameraWidth / 2 + halfPaddleWidth + horizontalEdgeOffset;
@@ -95,16 +106,17 @@ public class PaddleController : MonoBehaviour
             paddlePos.y = -mainCamera.orthographicSize + verticalOffset;
             transform.position = paddlePos;
 
-            // Update the slider's width to match the paddle's movement range
-            //if (controlSlider != null)
-            //{
-            //    RectTransform sliderRect = controlSlider.GetComponent<RectTransform>();
-            //    if (sliderRect != null)
-            //    {
-            //        float sliderWidth = maxX - minX;
-            //        sliderRect.sizeDelta = new Vector2(sliderWidth, sliderRect.sizeDelta.y);
-            //    }
-            //}
+            // Ensure the paddle stays within the new boundaries
+            Vector3 clampedPosition = transform.position;
+            clampedPosition.x = Mathf.Clamp(clampedPosition.x, minX, maxX);
+            transform.position = clampedPosition;
+
+            // Update slider value to match the new paddle position
+            if (controlSlider != null)
+            {
+                float sliderValue = Mathf.InverseLerp(minX, maxX, clampedPosition.x);
+                controlSlider.SetValueWithoutNotify(sliderValue);
+            }
         }
     }
 
@@ -195,25 +207,37 @@ public class PaddleController : MonoBehaviour
 
     private IEnumerator ExpandPaddleCoroutine(float expandFactor, float duration)
     {
-        Vector3 expandedScale = originalScale;
-        expandedScale.x *= expandFactor;
+        Debug.Log($"Starting paddle expansion. Factor: {expandFactor}, Duration: {duration}");
+
+        // Calculate the new expand factor relative to the current size
+        float newExpandFactor = expandFactor / currentExpandFactor;
+
+        Vector3 expandedScale = transform.localScale;
+        expandedScale.x *= newExpandFactor;
         transform.localScale = expandedScale;
 
-        physicsCollider.size = new Vector2(physicsCollider.size.x * expandFactor, physicsCollider.size.y);
+        physicsCollider.size = new Vector2(physicsCollider.size.x * newExpandFactor, physicsCollider.size.y);
         triggerCollider.size = physicsCollider.size * 1.1f;
 
-        paddleWidth *= expandFactor;
+        currentPaddleWidth *= newExpandFactor;
         UpdatePaddleBoundaries();
 
+        currentExpandFactor *= newExpandFactor;
+
+        Debug.Log($"Paddle expanded. Waiting for {duration} seconds.");
         yield return new WaitForSeconds(duration);
+        Debug.Log("Expansion duration ended. Reverting paddle size.");
 
+        // Revert changes
         transform.localScale = originalScale;
-        paddleWidth /= expandFactor;
+        currentExpandFactor = 1f;
+        currentPaddleWidth = paddleWidth;
 
-        physicsCollider.size = new Vector2(physicsCollider.size.x / expandFactor, physicsCollider.size.y);
+        physicsCollider.size = new Vector2(paddleWidth, physicsCollider.size.y);
         triggerCollider.size = physicsCollider.size * 1.1f;
 
         UpdatePaddleBoundaries();
+        Debug.Log("Paddle size reverted.");
     }
 
     private void OnDrawGizmos()

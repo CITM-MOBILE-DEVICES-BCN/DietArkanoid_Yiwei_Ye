@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fallSpeed: 2
-  additionalBalls: 2
+  additionalBalls: 1
 --- !u!50 &1448988947539519472
 Rigidbody2D:
   serializedVersion: 4

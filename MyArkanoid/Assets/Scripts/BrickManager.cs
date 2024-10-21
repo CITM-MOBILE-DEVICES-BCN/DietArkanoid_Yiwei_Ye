@@ -139,8 +139,11 @@ public class BrickManager : MonoBehaviour
             GameObject powerUpPrefab = ChoosePowerUpType();
             if (powerUpPrefab != null)
             {
-                Instantiate(powerUpPrefab, position, Quaternion.identity);
+                var instance = Instantiate(powerUpPrefab, position, Quaternion.identity);
                 Debug.Log($"Power-up spawned at {position}");
+
+                ExpandPaddlePowerUp powerUp = instance.GetComponent<ExpandPaddlePowerUp>();
+
             }
         }
     }
