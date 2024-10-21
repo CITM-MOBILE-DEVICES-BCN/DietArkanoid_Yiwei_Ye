@@ -67,7 +67,7 @@ public class BrickManager : MonoBehaviour
 
     public void ResetBricks(int level)
     {
-        currentLevel = level; // Update the current level
+        currentLevel = level;
         ClearBricks();
         CreateBrickField(level);
     }
@@ -198,12 +198,12 @@ public class BrickManager : MonoBehaviour
     public void RemoveBrick(Brick brick)
     {
         activeBricks.Remove(brick);
-        
+
         if (currentLevel <= levelSettings.Count)
         {
             BrickType brickType = levelSettings[currentLevel - 1].brickTypes
                 .Find(bt => bt.prefab.name == brick.gameObject.name.Replace("(Clone)", "").Trim());
-            
+
             if (brickType != null && brickType.isBreakable)
             {
                 breakableBrickCount--;

@@ -158,15 +158,15 @@ public class GameManager : MonoBehaviour
 
     public void LevelCompleted()
     {
-        CurrentLevel++;
-        OnLevelChanged?.Invoke(CurrentLevel);
         gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
     }
 
     public void StartNextLevel()
     {
+        CurrentLevel++; // Increment the level here
         // Ensure CurrentLevel doesn't exceed the number of available levels
         CurrentLevel = Mathf.Min(CurrentLevel, brickManager.levelSettings.Count);
+        OnLevelChanged?.Invoke(CurrentLevel);
         ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
     }
