@@ -169,6 +169,7 @@ public class GameManager : MonoBehaviour
         OnLevelChanged?.Invoke(CurrentLevel);
         ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
+        ballController.ResetBall();
     }
 
     private void ChangeGameState(GameStateManager.GameState newState)

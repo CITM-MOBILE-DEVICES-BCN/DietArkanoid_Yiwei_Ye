@@ -89,6 +89,13 @@ public class BallController : MonoBehaviour
             GameManager.Instance.LoseLife();
             ResetBall();
         }
+
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            ResetBall();
+            StartLaunchSequence();
+        }
+
     }
 
     private void FixedUpdate()
