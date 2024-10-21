@@ -8,6 +8,8 @@ public class BrickManager : MonoBehaviour
     {
         public GameObject prefab;
         public float probability;
+        public bool isBreakable = true;
+
     }
 
     [System.Serializable]
@@ -17,15 +19,26 @@ public class BrickManager : MonoBehaviour
         public float probability;
     }
 
-    public List<BrickType> brickTypes;
+    [System.Serializable]
+    public class LevelSettings
+    {
+        public int rows;
+        public int columns;
+        public List<BrickType> brickTypes;
+    }
+    public List<LevelSettings> levelSettings;
+
     public List<PowerUpType> powerUpTypes;
-    public int baseRows = 5;
-    public int baseColumns = 10;
+    //public int baseRows = 5;
+    //public int baseColumns = 10;
     public float horizontalSpacing = 0.2f;
     public float verticalSpacing = 0.2f;
     public float powerUpChance = 0.1f;
+    public float topOffset = 1f;
+    public float sideOffset = 0.5f;
 
     private List<Brick> activeBricks = new List<Brick>();
+    private int breakableBrickCount;
 
 
     private void Start()
@@ -48,47 +61,68 @@ public class BrickManager : MonoBehaviour
             }
         }
         activeBricks.Clear();
+        breakableBrickCount = 0;
     }
 
     private void CreateBrickField(int level)
     {
-        int rows = baseRows + (level - 1) / 2;
-        int columns = baseColumns + (level - 1) / 2;
+        LevelSettings currentLevelSettings = levelSettings[Mathf.Min(level - 1, levelSettings.Count - 1)];
+        int rows = currentLevelSettings.rows;
+        int columns = currentLevelSettings.columns;
 
-        Vector2 startPosition = CalculateStartPosition(rows, columns);
+        Vector2 brickSize = GetBrickSize(currentLevelSettings.brickTypes[0].prefab);
+        Vector2 playArea = CalculatePlayArea();
+        Vector2 startPosition = CalculateStartPosition(rows, columns, brickSize, playArea);
 
         for (int row = 0; row < rows; row++)
         {
             for (int col = 0; col < columns; col++)
             {
                 Vector2 position = new Vector2(
-                    startPosition.x + col * (1 + horizontalSpacing),
-                    startPosition.y - row * (1 + verticalSpacing)
+                    startPosition.x + col * (brickSize.x + horizontalSpacing),
+                    startPosition.y - row * (brickSize.y + verticalSpacing)
                 );
 
-                CreateBrick(position, level);
+                CreateBrick(position, currentLevelSettings);
             }
         }
 
-        Debug.Log($"Created brick field with {rows} rows and {columns} columns for level {level}");
+        Debug.Log($"Created brick field with {rows} rows and {columns} columns for level {level}. Breakable bricks: {breakableBrickCount}");
     }
 
-    private Vector2 CalculateStartPosition(int rows, int columns)
+    private Vector2 GetBrickSize(GameObject brickPrefab)
     {
-        float totalWidth = columns * (1 + horizontalSpacing) - horizontalSpacing;
-        float totalHeight = rows * (1 + verticalSpacing) - verticalSpacing;
+        SpriteRenderer spriteRenderer = brickPrefab.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            return spriteRenderer.bounds.size;
+        }
+        return Vector2.one; // Default size if sprite renderer is not found
+    }
+
+    private Vector2 CalculatePlayArea()
+    {
+        float height = Camera.main.orthographicSize * 2;
+        float width = height * Camera.main.aspect;
+        return new Vector2(width - sideOffset * 2, height - topOffset);
+    }
+
+    private Vector2 CalculateStartPosition(int rows, int columns, Vector2 brickSize, Vector2 playArea)
+    {
+        float totalWidth = columns * brickSize.x + (columns - 1) * horizontalSpacing;
+        float totalHeight = rows * brickSize.y + (rows - 1) * verticalSpacing;
 
         return new Vector2(
             -totalWidth / 2f,
-            Camera.main.orthographicSize - 1 - verticalSpacing
+            Camera.main.orthographicSize - topOffset - brickSize.y / 2
         );
     }
 
 
 
-    private void CreateBrick(Vector2 position, int level)
+    private void CreateBrick(Vector2 position, LevelSettings levelSettings)
     {
-        GameObject brickPrefab = ChooseBrickType(level);
+        GameObject brickPrefab = ChooseBrickType(levelSettings.brickTypes);
         GameObject brickObject = Instantiate(brickPrefab, position, Quaternion.identity, transform);
 
         Brick brick = brickObject.GetComponent<Brick>();
@@ -98,11 +132,17 @@ public class BrickManager : MonoBehaviour
             return;
         }
 
-        brick.SetDifficulty(level);
         activeBricks.Add(brick);
+
+        BrickType brickType = levelSettings.brickTypes.Find(bt => bt.prefab == brickPrefab);
+        if (brickType != null && brickType.isBreakable)
+        {
+            breakableBrickCount++;
+        }
     }
 
-    private GameObject ChooseBrickType(int level)
+
+    private GameObject ChooseBrickType(List<BrickType> brickTypes)
     {
         float random = Random.value;
         float cumulativeProbability = 0f;
@@ -122,14 +162,20 @@ public class BrickManager : MonoBehaviour
     public void RemoveBrick(Brick brick)
     {
         activeBricks.Remove(brick);
-        if (activeBricks.Count == 0)
+
+        BrickType brickType = levelSettings[GameManager.Instance.CurrentLevel - 1].brickTypes
+            .Find(bt => bt.prefab.name == brick.gameObject.name.Replace("(Clone)", "").Trim());
+
+        if (brickType != null && brickType.isBreakable)
         {
-            GameManager.Instance.LevelCompleted();
+            breakableBrickCount--;
+            if (breakableBrickCount == 0)
+            {
+                GameManager.Instance.LevelCompleted();
+            }
         }
-        else
-        {
-            TrySpawnPowerUp(brick.transform.position);
-        }
+
+        TrySpawnPowerUp(brick.transform.position);
     }
 
     private void TrySpawnPowerUp(Vector2 position)
@@ -141,9 +187,6 @@ public class BrickManager : MonoBehaviour
             {
                 var instance = Instantiate(powerUpPrefab, position, Quaternion.identity);
                 Debug.Log($"Power-up spawned at {position}");
-
-                ExpandPaddlePowerUp powerUp = instance.GetComponent<ExpandPaddlePowerUp>();
-
             }
         }
     }
@@ -164,4 +207,5 @@ public class BrickManager : MonoBehaviour
 
         return null;
     }
+
 }

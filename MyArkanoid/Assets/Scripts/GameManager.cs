@@ -161,6 +161,11 @@ public class GameManager : MonoBehaviour
     {
         CurrentLevel++;
         OnLevelChanged?.Invoke(CurrentLevel);
+        gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
+    }
+
+    public void StartNextLevel()
+    {
         ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
     }

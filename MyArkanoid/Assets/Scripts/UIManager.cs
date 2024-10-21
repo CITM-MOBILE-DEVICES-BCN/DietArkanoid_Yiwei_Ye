@@ -26,6 +26,8 @@ public class UIManager : MonoBehaviour
     public Button restartButton;
     public Button quitButton;
     public Button goBackToMainMenu;
+    public Button nextLevelButton;
+
 
     [Header("Controlls")]
     public Slider paddleSlider;
@@ -55,6 +57,8 @@ public class UIManager : MonoBehaviour
         restartButton.onClick.AddListener(GameManager.Instance.StartGame);
         quitButton.onClick.AddListener(Application.Quit);
         goBackToMainMenu.onClick.AddListener(GameManager.Instance.GoToMainMenu);
+        nextLevelButton.onClick.AddListener(GameManager.Instance.StartNextLevel);
+
     }
 
     public void ShowPanel(GameStateManager.GameState state)
