@@ -15,7 +15,8 @@ public class GameStateManager : MonoBehaviour
         Gameplay,
         Paused,
         GameOver,
-        LevelCompleted
+        LevelCompleted,
+        EndGame // New state
     }
 
     private void Awake()
@@ -36,7 +37,8 @@ public class GameStateManager : MonoBehaviour
             { GameState.Gameplay, new GameplayState() },
             { GameState.Paused, new PausedState() },
             { GameState.GameOver, new GameOverState() },
-            { GameState.LevelCompleted, new LevelCompletedState() }
+            { GameState.LevelCompleted, new LevelCompletedState() },
+            { GameState.EndGame, new EndGameState() }
         };
     }
 
@@ -139,6 +141,19 @@ public class LevelCompletedState : IGameState
     {
         Debug.Log("Entered Level Completed State");
         GameManager.Instance.AdvanceLevel();
+        GameplayManager.Instance.DeactivateGameplayElements();
+    }
+
+    public void UpdateState() { }
+
+    public void ExitState() { }
+}
+
+public class EndGameState : IGameState
+{
+    public void EnterState()
+    {
+        Debug.Log("Entered End Game State");
         GameplayManager.Instance.DeactivateGameplayElements();
     }
 

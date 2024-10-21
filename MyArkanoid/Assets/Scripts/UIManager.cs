@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
     public GameObject pausePanel;
     public GameObject gameOverPanel;
     public GameObject levelCompletedPanel;
+    public GameObject endGamePanel; // New panel for EndGame screen
 
     [Header("Gameplay UI")]
     public TextMeshProUGUI scoreText;
@@ -27,6 +28,8 @@ public class UIManager : MonoBehaviour
     public Button quitButton;
     public Button goBackToMainMenu;
     public Button nextLevelButton;
+    public Button endGameMainMenuButton; // New button for EndGame screen
+    public Button endGameQuitButton; // New button for EndGame screen
 
 
     [Header("Controlls")]
@@ -58,7 +61,8 @@ public class UIManager : MonoBehaviour
         quitButton.onClick.AddListener(Application.Quit);
         goBackToMainMenu.onClick.AddListener(GameManager.Instance.GoToMainMenu);
         nextLevelButton.onClick.AddListener(GameManager.Instance.StartNextLevel);
-
+        endGameMainMenuButton.onClick.AddListener(GameManager.Instance.GoToMainMenu);
+        endGameQuitButton.onClick.AddListener(GameManager.Instance.QuitGame);
     }
 
     public void ShowPanel(GameStateManager.GameState state)
@@ -81,6 +85,9 @@ public class UIManager : MonoBehaviour
             case GameStateManager.GameState.LevelCompleted:
                 levelCompletedPanel.SetActive(true);
                 break;
+            case GameStateManager.GameState.EndGame:
+                endGamePanel.SetActive(true);
+                break;
         }
     }
 
@@ -91,6 +98,7 @@ public class UIManager : MonoBehaviour
         pausePanel.SetActive(false);
         gameOverPanel.SetActive(false);
         levelCompletedPanel.SetActive(false);
+        endGamePanel.SetActive(false);
     }
 
     private void ShowMainMenu()

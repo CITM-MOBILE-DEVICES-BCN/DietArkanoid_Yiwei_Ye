@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     public int Lives { get; private set; }
     public int CurrentLevel { get; private set; }
     public bool IsAutoPlayEnabled { get; private set; }
+    public int MaxLevel = 3; // New field to define the maximum level
+
 
     public event Action<int> OnScoreChanged;
     public event Action<int> OnLivesChanged;
@@ -163,13 +165,31 @@ public class GameManager : MonoBehaviour
 
     public void StartNextLevel()
     {
-        CurrentLevel++; // Increment the level here
-        // Ensure CurrentLevel doesn't exceed the number of available levels
-        CurrentLevel = Mathf.Min(CurrentLevel, brickManager.levelSettings.Count);
+        CurrentLevel++;
         OnLevelChanged?.Invoke(CurrentLevel);
-        ResetGameElements(true);
-        ChangeGameState(GameStateManager.GameState.Gameplay);
-        ballController.ResetBall();
+        if (CurrentLevel > MaxLevel)
+        {
+            EndGame();
+        }
+        else
+        {
+            ResetGameElements(true);
+            ChangeGameState(GameStateManager.GameState.Gameplay);
+        }
+    }
+
+    private void EndGame()
+    {
+        ChangeGameState(GameStateManager.GameState.EndGame);
+    }
+
+    public void QuitGame()
+    {
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 
     private void ChangeGameState(GameStateManager.GameState newState)
