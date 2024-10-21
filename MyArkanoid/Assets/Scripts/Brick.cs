@@ -33,29 +33,26 @@ public class Brick : MonoBehaviour
     public virtual void Hit()
     {
         hitPoints--;
-        Debug.Log($"Brick Hit: {gameObject.name}, Remaining HitPoints: {hitPoints}");
         if (hitPoints <= 0)
         {
-            Destroy();
+            DestroyBrick();
         }
         else
         {
             UpdateColor();
         }
     }
-
-    protected virtual void Destroy()
+    protected virtual void DestroyBrick()
     {
-        Debug.Log($"Destroying Brick: {gameObject.name}");
-        GameManager.Instance.AddScore(scoreValue);
         if (brickManager != null)
         {
             brickManager.RemoveBrick(this);
         }
         else
         {
-            Debug.LogError($"BrickManager is null when trying to destroy {gameObject.name}");
+            Debug.LogError("BrickManager is null when trying to destroy brick");
         }
+        GameManager.Instance.AddScore(scoreValue);
         Destroy(gameObject);
     }
 
@@ -72,4 +69,11 @@ public class Brick : MonoBehaviour
     {
         return hitPoints <= 0;
     }
+
+    public virtual bool IsBreakable()
+    {
+        return hitPoints > 0;
+    }
+
+
 }

@@ -37,8 +37,42 @@ public class BrickManager : MonoBehaviour
     private int breakableBrickCount;
     private Vector2 brickSize;
 
+    public Vector2 brickFieldPosition = new Vector2(0, 2); // New public field for brick field position
+    private int currentLevel = 1; // Track the current level
+
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ResetBricks(currentLevel);
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            DestroyAllBreakableBricks();
+        }
+    }
+    private void DestroyAllBreakableBricks()
+    {
+        List<Brick> bricksToDestroy = new List<Brick>(activeBricks);
+        foreach (Brick brick in bricksToDestroy)
+        {
+            if (brick != null)
+            {
+                BrickType brickType = levelSettings[currentLevel - 1].brickTypes
+                    .Find(bt => bt.prefab.name == brick.gameObject.name.Replace("(Clone)", "").Trim());
+
+                if (brickType != null && brickType.isBreakable)
+                {
+                    brick.Hit(); // This will trigger the brick's destruction logic
+                }
+            }
+        }
+    }
+
     public void ResetBricks(int level)
     {
+        currentLevel = level; // Update the current level
         ClearBricks();
         CreateBrickField(level);
     }
@@ -75,6 +109,8 @@ public class BrickManager : MonoBehaviour
                     startPosition.x + col * (brickSize.x + horizontalSpacing),
                     startPosition.y - row * (brickSize.y + verticalSpacing)
                 );
+
+                position += brickFieldPosition; // Apply the brick field position offset
 
                 CreateBrick(position, currentLevelSettings);
             }
@@ -168,19 +204,35 @@ public class BrickManager : MonoBehaviour
     {
         activeBricks.Remove(brick);
 
-        BrickType brickType = levelSettings[GameManager.Instance.CurrentLevel - 1].brickTypes
-            .Find(bt => bt.prefab.name == brick.gameObject.name.Replace("(Clone)", "").Trim());
-
-        if (brickType != null && brickType.isBreakable)
+        if (currentLevel <= levelSettings.Count)
         {
-            breakableBrickCount--;
-            if (breakableBrickCount == 0)
-            {
-                GameManager.Instance.LevelCompleted();
-            }
-        }
+            BrickType brickType = levelSettings[currentLevel - 1].brickTypes
+                .Find(bt => bt.prefab.name == brick.gameObject.name.Replace("(Clone)", "").Trim());
 
-        TrySpawnPowerUp(brick.transform.position);
+            if (brickType != null && brickType.isBreakable)
+            {
+                breakableBrickCount--;
+                if (breakableBrickCount == 0)
+                {
+                    GameManager.Instance.LevelCompleted();
+                }
+            }
+
+            TrySpawnPowerUp(brick.transform.position);
+        }
+        else
+        {
+            Debug.LogWarning($"Current level {currentLevel} exceeds the number of level settings.");
+        }
+    }
+
+    public void UpdateBrickFieldPosition(Vector2 newPosition)
+    {
+        brickFieldPosition = newPosition;
+        if (activeBricks.Count > 0)
+        {
+            ResetBricks(currentLevel);
+        }
     }
 
     private void TrySpawnPowerUp(Vector2 position)
