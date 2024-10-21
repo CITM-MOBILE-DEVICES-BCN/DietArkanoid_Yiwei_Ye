@@ -4239,9 +4239,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelSettings:
-  - rows: 2
-    columns: 2
-    brickTypes:
+  - brickTypes:
     - prefab: {fileID: 9126222656759717026, guid: 60e086aee6b14bd42a62199db12a5b03, type: 3}
       probability: 0.7
       isBreakable: 1
@@ -4251,25 +4249,25 @@ MonoBehaviour:
     - prefab: {fileID: 4650603301562476604, guid: eb8891c92e006b04f926901c020b1a82, type: 3}
       probability: 0.1
       isBreakable: 0
-  - rows: 5
-    columns: 5
-    brickTypes:
-    - prefab: {fileID: 0}
-      probability: 0
+    screenFillPercentage: 0.7
+  - brickTypes:
+    - prefab: {fileID: 9126222656759717026, guid: 60e086aee6b14bd42a62199db12a5b03, type: 3}
+      probability: 0.2
+      isBreakable: 1
+    - prefab: {fileID: 7844031809868030030, guid: 4716d193a584a75478626d26eb60e706, type: 3}
+      probability: 0.5
+      isBreakable: 1
+    - prefab: {fileID: 4650603301562476604, guid: eb8891c92e006b04f926901c020b1a82, type: 3}
+      probability: 0.3
       isBreakable: 0
-    - prefab: {fileID: 0}
-      probability: 0
-      isBreakable: 0
-    - prefab: {fileID: 0}
-      probability: 0
-      isBreakable: 0
+    screenFillPercentage: 0.7
   powerUpTypes:
   - prefab: {fileID: 5317527665491702983, guid: 21fd3a25e97371148b5ee68fdbf22152, type: 3}
     probability: 1
-  horizontalSpacing: 0
-  verticalSpacing: 0
+  horizontalSpacing: -0.27
+  verticalSpacing: -0.4
   powerUpChance: 0.2
-  topOffset: 1
+  topOffset: -1.89
   sideOffset: 0.5
 --- !u!4 &1863990372
 Transform:
@@ -4280,7 +4278,7 @@ Transform:
   m_GameObject: {fileID: 1863990370}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.2242026, y: 0.07475617, z: 0.06080021}
+  m_LocalPosition: {x: -0.86, y: 3.09, z: 0.06080021}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -9,7 +9,6 @@ public class BrickManager : MonoBehaviour
         public GameObject prefab;
         public float probability;
         public bool isBreakable = true;
-
     }
 
     [System.Serializable]
@@ -22,29 +21,22 @@ public class BrickManager : MonoBehaviour
     [System.Serializable]
     public class LevelSettings
     {
-        public int rows;
-        public int columns;
         public List<BrickType> brickTypes;
+        public float screenFillPercentage = 0.7f; // Percentage of screen height to fill with bricks
     }
-    public List<LevelSettings> levelSettings;
 
+    public List<LevelSettings> levelSettings;
     public List<PowerUpType> powerUpTypes;
-    //public int baseRows = 5;
-    //public int baseColumns = 10;
-    public float horizontalSpacing = 0.2f;
-    public float verticalSpacing = 0.2f;
+    [SerializeField] private float horizontalSpacing = 0.1f;
+    [SerializeField] private float verticalSpacing = 0.1f;
     public float powerUpChance = 0.1f;
     public float topOffset = 1f;
     public float sideOffset = 0.5f;
 
     private List<Brick> activeBricks = new List<Brick>();
     private int breakableBrickCount;
+    private Vector2 brickSize;
 
-
-    private void Start()
-    {
-        //CreateBrickField();
-    }
     public void ResetBricks(int level)
     {
         ClearBricks();
@@ -67,11 +59,12 @@ public class BrickManager : MonoBehaviour
     private void CreateBrickField(int level)
     {
         LevelSettings currentLevelSettings = levelSettings[Mathf.Min(level - 1, levelSettings.Count - 1)];
-        int rows = currentLevelSettings.rows;
-        int columns = currentLevelSettings.columns;
-
-        Vector2 brickSize = GetBrickSize(currentLevelSettings.brickTypes[0].prefab);
+        brickSize = GetBrickSize(currentLevelSettings.brickTypes[0].prefab);
         Vector2 playArea = CalculatePlayArea();
+
+        int columns = CalculateColumns(playArea.x);
+        int rows = CalculateRows(playArea.y, currentLevelSettings.screenFillPercentage);
+
         Vector2 startPosition = CalculateStartPosition(rows, columns, brickSize, playArea);
 
         for (int row = 0; row < rows; row++)
@@ -107,6 +100,21 @@ public class BrickManager : MonoBehaviour
         return new Vector2(width - sideOffset * 2, height - topOffset);
     }
 
+    private int CalculateColumns(float availableWidth)
+    {
+        float brickWidthWithSpacing = brickSize.x + horizontalSpacing;
+        int columns = Mathf.FloorToInt(availableWidth / brickWidthWithSpacing);
+        return Mathf.Max(1, columns); // Ensure at least one column
+    }
+
+    private int CalculateRows(float availableHeight, float screenFillPercentage)
+    {
+        float brickHeightWithSpacing = brickSize.y + verticalSpacing;
+        float desiredHeight = availableHeight * screenFillPercentage;
+        int rows = Mathf.FloorToInt(desiredHeight / brickHeightWithSpacing);
+        return Mathf.Max(1, rows); // Ensure at least one row
+    }
+
     private Vector2 CalculateStartPosition(int rows, int columns, Vector2 brickSize, Vector2 playArea)
     {
         float totalWidth = columns * brickSize.x + (columns - 1) * horizontalSpacing;
@@ -114,30 +122,8 @@ public class BrickManager : MonoBehaviour
 
         return new Vector2(
             -totalWidth / 2f,
-            Camera.main.orthographicSize - topOffset - totalHeight / 2
+            Camera.main.orthographicSize - topOffset - brickSize.y / 2
         );
-    }
-
-    public void UpdateSpacing(float newHorizontalSpacing, float newVerticalSpacing)
-    {
-        horizontalSpacing = newHorizontalSpacing;
-        verticalSpacing = newVerticalSpacing;
-
-        if (activeBricks.Count > 0)
-        {
-            int currentLevel = GameManager.Instance.CurrentLevel;
-            ResetBricks(currentLevel);
-        }
-    }
-
-
-    private void OnValidate()
-    {
-        // This ensures that the spacing is updated in the editor when changed
-        if (Application.isPlaying && activeBricks.Count > 0)
-        {
-            UpdateSpacing(horizontalSpacing, verticalSpacing);
-        }
     }
 
     private void CreateBrick(Vector2 position, LevelSettings levelSettings)
@@ -160,7 +146,6 @@ public class BrickManager : MonoBehaviour
             breakableBrickCount++;
         }
     }
-
 
     private GameObject ChooseBrickType(List<BrickType> brickTypes)
     {
@@ -228,4 +213,24 @@ public class BrickManager : MonoBehaviour
         return null;
     }
 
+    public void UpdateSpacing(float newHorizontalSpacing, float newVerticalSpacing)
+    {
+        horizontalSpacing = newHorizontalSpacing;
+        verticalSpacing = newVerticalSpacing;
+
+        if (activeBricks.Count > 0)
+        {
+            int currentLevel = GameManager.Instance.CurrentLevel;
+            ResetBricks(currentLevel);
+        }
+    }
+
+    private void OnValidate()
+    {
+        // This ensures that the spacing is updated in the editor when changed
+        if (Application.isPlaying && activeBricks.Count > 0)
+        {
+            UpdateSpacing(horizontalSpacing, verticalSpacing);
+        }
+    }
 }
