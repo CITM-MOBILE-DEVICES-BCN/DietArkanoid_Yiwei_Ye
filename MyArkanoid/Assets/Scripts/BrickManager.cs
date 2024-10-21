@@ -114,11 +114,31 @@ public class BrickManager : MonoBehaviour
 
         return new Vector2(
             -totalWidth / 2f,
-            Camera.main.orthographicSize - topOffset - brickSize.y / 2
+            Camera.main.orthographicSize - topOffset - totalHeight / 2
         );
     }
 
+    public void UpdateSpacing(float newHorizontalSpacing, float newVerticalSpacing)
+    {
+        horizontalSpacing = newHorizontalSpacing;
+        verticalSpacing = newVerticalSpacing;
 
+        if (activeBricks.Count > 0)
+        {
+            int currentLevel = GameManager.Instance.CurrentLevel;
+            ResetBricks(currentLevel);
+        }
+    }
+
+
+    private void OnValidate()
+    {
+        // This ensures that the spacing is updated in the editor when changed
+        if (Application.isPlaying && activeBricks.Count > 0)
+        {
+            UpdateSpacing(horizontalSpacing, verticalSpacing);
+        }
+    }
 
     private void CreateBrick(Vector2 position, LevelSettings levelSettings)
     {
