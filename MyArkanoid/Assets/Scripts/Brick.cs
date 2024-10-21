@@ -78,8 +78,7 @@ public class Brick : MonoBehaviour
 
     public virtual bool IsBreakable()
     {
-        return hitPoints > 0;
+        return isBreakable && hitPoints > 0;
     }
-
 
 }

@@ -5,6 +5,7 @@ public class UnbreakableBrick : Brick
     protected override void Awake()
     {
         base.Awake();
+        isBreakable = false;
         hitPoints = int.MaxValue;
         scoreValue = 0;
     }

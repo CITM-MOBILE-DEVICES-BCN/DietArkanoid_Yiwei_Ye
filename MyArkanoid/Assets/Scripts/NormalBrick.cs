@@ -2,5 +2,10 @@ using UnityEngine;
 
 public class NormalBrick : Brick
 {
-    // Normal brick uses the base implementation
+    protected override void Awake()
+    {
+        base.Awake();
+        isBreakable = true;
+        hitPoints = 1;
+    }
 }
