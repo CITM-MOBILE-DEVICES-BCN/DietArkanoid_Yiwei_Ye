@@ -4252,13 +4252,13 @@ MonoBehaviour:
     screenFillPercentage: 0.3
   - brickTypes:
     - prefab: {fileID: 9126222656759717026, guid: 60e086aee6b14bd42a62199db12a5b03, type: 3}
-      probability: 0.2
+      probability: 0.4
       isBreakable: 1
     - prefab: {fileID: 7844031809868030030, guid: 4716d193a584a75478626d26eb60e706, type: 3}
       probability: 0.5
       isBreakable: 1
     - prefab: {fileID: 4650603301562476604, guid: eb8891c92e006b04f926901c020b1a82, type: 3}
-      probability: 0.3
+      probability: 0.1
       isBreakable: 0
     screenFillPercentage: 0.5
   powerUpTypes:

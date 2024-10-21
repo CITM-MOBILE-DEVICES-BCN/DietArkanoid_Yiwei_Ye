@@ -51,6 +51,7 @@ public class BrickManager : MonoBehaviour
         {
             DestroyAllBreakableBricks();
         }
+        
     }
     private void DestroyAllBreakableBricks()
     {
