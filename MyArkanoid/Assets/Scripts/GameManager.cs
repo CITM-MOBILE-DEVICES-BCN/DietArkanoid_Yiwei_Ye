@@ -141,7 +141,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
     public void PauseGame()
     {
         gameStateManager.ChangeState(GameStateManager.GameState.Paused);
@@ -166,6 +165,8 @@ public class GameManager : MonoBehaviour
 
     public void StartNextLevel()
     {
+        // Ensure CurrentLevel doesn't exceed the number of available levels
+        CurrentLevel = Mathf.Min(CurrentLevel, brickManager.levelSettings.Count);
         ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
     }

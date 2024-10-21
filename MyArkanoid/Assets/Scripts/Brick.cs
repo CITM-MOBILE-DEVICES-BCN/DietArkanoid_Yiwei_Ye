@@ -5,6 +5,9 @@ public class Brick : MonoBehaviour
     [SerializeField] protected int baseHitPoints = 1;
     [SerializeField] protected int baseScoreValue = 10;
     [SerializeField] protected Color[] stateColors;
+    [SerializeField] protected bool isBreakable = true;
+
+
 
     protected int hitPoints;
     protected int scoreValue;
@@ -32,17 +35,20 @@ public class Brick : MonoBehaviour
 
     public virtual void Hit()
     {
-        hitPoints--;
-        if (hitPoints <= 0)
+        if (isBreakable)
         {
-            DestroyBrick();
-        }
-        else
-        {
-            UpdateColor();
+            hitPoints--;
+            if (hitPoints <= 0)
+            {
+                DestroyBrick();
+            }
+            else
+            {
+                UpdateColor();
+            }
         }
     }
-    protected virtual void DestroyBrick()
+    public virtual void DestroyBrick()
     {
         if (brickManager != null)
         {

@@ -181,20 +181,19 @@ public class BallController : MonoBehaviour
 
     public void ResetBall()
     {
-        StopLaunchSequence();
         isLaunched = false;
+        transform.position = startPosition;
         rb.velocity = Vector2.zero;
-        rb.angularVelocity = 0f;
         currentSpeed = initialSpeed;
 
-        // Notify PaddleController that the ball has been reset
-        PaddleController paddleController = FindObjectOfType<PaddleController>();
-        if (paddleController != null)
+        // Find and update the paddle position
+        GameObject paddle = GameObject.FindGameObjectWithTag("Paddle");
+        if (paddle != null)
         {
-            paddleController.OnBallReset();
+            Vector3 paddlePosition = paddle.transform.position;
+            transform.position = new Vector3(paddlePosition.x, startPosition.y, 0f);
         }
     }
-
     public void LaunchBall(Vector2 direction)
     {
         if (rb == null)
