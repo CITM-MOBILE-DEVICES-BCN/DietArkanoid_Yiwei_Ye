@@ -87,7 +87,9 @@ public class BrickManager : MonoBehaviour
 
     private void CreateBrickField(int level)
     {
-        LevelSettings currentLevelSettings = levelSettings[Mathf.Min(level - 1, levelSettings.Count - 1)];
+        int levelIndex = Mathf.Clamp(level - 1, 0, levelSettings.Count - 1);
+        LevelSettings currentLevelSettings = levelSettings[levelIndex];
+
         brickSize = GetBrickSize(currentLevelSettings.brickTypes[0].prefab);
         Vector2 playArea = CalculatePlayArea();
 
@@ -199,26 +201,20 @@ public class BrickManager : MonoBehaviour
     {
         activeBricks.Remove(brick);
 
-        if (currentLevel <= levelSettings.Count)
-        {
-            BrickType brickType = levelSettings[currentLevel - 1].brickTypes
-                .Find(bt => bt.prefab.name == brick.gameObject.name.Replace("(Clone)", "").Trim());
+        int levelIndex = Mathf.Clamp(currentLevel - 1, 0, levelSettings.Count - 1);
+        BrickType brickType = levelSettings[levelIndex].brickTypes
+            .Find(bt => bt.prefab.name == brick.gameObject.name.Replace("(Clone)", "").Trim());
 
-            if (brickType != null && brickType.isBreakable)
+        if (brickType != null && brickType.isBreakable)
+        {
+            breakableBrickCount--;
+            if (breakableBrickCount == 0)
             {
-                breakableBrickCount--;
-                if (breakableBrickCount == 0)
-                {
-                    GameManager.Instance.LevelCompleted();
-                }
+                GameManager.Instance.LevelCompleted();
             }
+        }
 
-            TrySpawnPowerUp(brick.transform.position);
-        }
-        else
-        {
-            Debug.LogWarning($"Current level {currentLevel} exceeds the number of level settings.");
-        }
+        TrySpawnPowerUp(brick.transform.position);
     }
 
     public void UpdateBrickFieldPosition(Vector2 newPosition)

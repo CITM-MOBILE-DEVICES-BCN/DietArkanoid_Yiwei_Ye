@@ -114,6 +114,7 @@ public class GameManager : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        InitializeGame(); // Reset game state when returning to main menu
         gameStateManager.ChangeState(GameStateManager.GameState.MainMenu);
     }
     public void StartGame()
@@ -160,22 +161,23 @@ public class GameManager : MonoBehaviour
 
     public void LevelCompleted()
     {
-        gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
-    }
-
-    public void StartNextLevel()
-    {
-        CurrentLevel++;
-        OnLevelChanged?.Invoke(CurrentLevel);
-        if (CurrentLevel > MaxLevel)
+        Debug.Log($"Level {CurrentLevel} completed.");
+        if (CurrentLevel >= MaxLevel)
         {
             EndGame();
         }
         else
         {
-            ResetGameElements(true);
-            ChangeGameState(GameStateManager.GameState.Gameplay);
+            gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
         }
+    }
+
+    public void StartNextLevel()
+    {
+        AdvanceLevel();
+        Debug.Log($"Starting level {CurrentLevel}");
+        ResetGameElements(true);
+        ChangeGameState(GameStateManager.GameState.Gameplay);
     }
 
     private void EndGame()
