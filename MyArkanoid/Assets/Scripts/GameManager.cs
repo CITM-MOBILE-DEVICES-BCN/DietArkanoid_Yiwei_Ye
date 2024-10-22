@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        FindGameObjects();
+
         if (Instance == null)
         {
             Instance = this;
@@ -61,6 +63,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+
         if (gameStateManager != null)
         {
             gameStateManager.UpdateState();
@@ -71,6 +74,19 @@ public class GameManager : MonoBehaviour
         {
             TogglePause();
         }
+
+        if(Input.GetKeyDown(KeyCode.A))
+        {
+            ToggleAutoPlay();
+            OnAutoPlayToggled?.Invoke(IsAutoPlayEnabled);
+        }
+
+        if(IsAutoPlayEnabled == true)
+        {
+            UpdateAutoPlay(ballController.transform.position);
+
+        }
+
     }
 
     private void FindGameObjects()
