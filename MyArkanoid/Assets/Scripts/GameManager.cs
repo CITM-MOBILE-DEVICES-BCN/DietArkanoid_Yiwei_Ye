@@ -194,6 +194,7 @@ public class GameManager : MonoBehaviour
         Debug.Log($"Starting level {CurrentLevel}");
         ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
+        ballController.ResetBall();
     }
 
     private void EndGame()
