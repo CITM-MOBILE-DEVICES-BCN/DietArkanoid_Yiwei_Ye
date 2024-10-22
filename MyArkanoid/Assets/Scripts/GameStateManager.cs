@@ -140,7 +140,6 @@ public class LevelCompletedState : IGameState
     public void EnterState()
     {
         Debug.Log("Entered Level Completed State");
-        GameManager.Instance.AdvanceLevel();
         GameplayManager.Instance.DeactivateGameplayElements();
     }
 
