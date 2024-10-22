@@ -4,118 +4,176 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class SaveManager : MonoBehaviour
 {
-    private const string SettingsPrefix = "GameSettings_";
-    private const string JsonSaveFileNameFormat = "gamesave_json_{0}.json";
-    private const string BinarySaveFileNameFormat = "gamesave_binary_{0}.dat";
-    private const int MaxSaveSlots = 3;
+    public static SaveManager Instance { get; private set; }
 
-    [System.Serializable]
-    public class SettingsData
-    {
-        public float musicVolume = 1f;
-        public float sfxVolume = 1f;
-        public bool fullscreen = true;
-    }
+    private const string SAVE_FILE_NAME = "arkanoid_save.json";
+    private const string SETTINGS_PREFIX = "Settings_";
 
-    [System.Serializable]
-    public class GameSaveData
-    {
-        public PlayerData playerData;
-        // Add more game state data as needed
-    }
+    private GameSaveData currentGameData;
+    private SettingsData currentSettings;
 
-    // Settings methods using PlayerPrefs
-    public void SaveSettings(SettingsData settings)
+    private void Awake()
     {
-        PlayerPrefs.SetFloat(SettingsPrefix + "MusicVolume", settings.musicVolume);
-        PlayerPrefs.SetFloat(SettingsPrefix + "SFXVolume", settings.sfxVolume);
-        PlayerPrefs.SetInt(SettingsPrefix + "Fullscreen", settings.fullscreen ? 1 : 0);
-        PlayerPrefs.Save();
-        Debug.Log("Settings saved by PlayerPrefs");
-    }
-
-    public SettingsData LoadSettings()
-    {
-        Debug.Log("Settings loaded by PlayerPrefs");
-        return new SettingsData
+        if (Instance == null)
         {
-            musicVolume = PlayerPrefs.GetFloat(SettingsPrefix + "MusicVolume", 1f),
-            sfxVolume = PlayerPrefs.GetFloat(SettingsPrefix + "SFXVolume", 1f),
-            fullscreen = PlayerPrefs.GetInt(SettingsPrefix + "Fullscreen", 1) == 1
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            LoadAll();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void LoadAll()
+    {
+        LoadGameData();
+        LoadSettings();
+    }
+
+    #region Game Data (JSON)
+
+    public void SaveGameData()
+    {
+        currentGameData = new GameSaveData
+        {
+            highScore = Mathf.Max(GameManager.Instance.Score, currentGameData?.highScore ?? 0),
+            currentScore = GameManager.Instance.Score,
+            currentLevel = GameManager.Instance.CurrentLevel,
+            remainingLives = GameManager.Instance.Lives,
+            hasSavedGame = true,
+            lastSaveDate = System.DateTime.Now.ToString()
         };
-        
+
+        string json = JsonUtility.ToJson(currentGameData, true);
+        string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
+
+        try
+        {
+            File.WriteAllText(path, json);
+            Debug.Log($"Game saved successfully to {path}");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to save game data: {e.Message}");
+        }
     }
 
-    // JSON serialization methods
-    public void SaveGameJSON(GameSaveData saveData, int slotIndex)
+    public void LoadGameData()
     {
-        if (slotIndex < 0 || slotIndex >= MaxSaveSlots)
-        {
-            Debug.LogError("Invalid save slot index");
-            return;
-        }
+        string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
 
-        string json = JsonUtility.ToJson(saveData, true);
-        string path = Path.Combine(Application.persistentDataPath, string.Format(JsonSaveFileNameFormat, slotIndex));
-        File.WriteAllText(path, json);
-        Debug.Log("Game saved by JSON");
-    }
-
-    public GameSaveData LoadGameJSON(int slotIndex)
-    {
-        if (slotIndex < 0 || slotIndex >= MaxSaveSlots)
-        {
-            Debug.LogError("Invalid save slot index");
-            return null;
-        }
-
-        string path = Path.Combine(Application.persistentDataPath, string.Format(JsonSaveFileNameFormat, slotIndex));
         if (File.Exists(path))
         {
-            string json = File.ReadAllText(path);
-            return JsonUtility.FromJson<GameSaveData>(json);
-        }
-        Debug.Log("Game loaded by JSON");
-        return null;
-        
-    }
-
-    // Binary serialization methods
-    public void SaveGameBinary(GameSaveData saveData, int slotIndex)
-    {
-        if (slotIndex < 0 || slotIndex >= MaxSaveSlots)
-        {
-            Debug.LogError("Invalid save slot index");
-            return;
-        }
-
-        string path = Path.Combine(Application.persistentDataPath, string.Format(BinarySaveFileNameFormat, slotIndex));
-        using (FileStream stream = File.Create(path))
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(stream, saveData);
-        }
-        Debug.Log("Game saved by Binary serialization");
-    }
-
-    public GameSaveData LoadGameBinary(int slotIndex)
-    {
-        if (slotIndex < 0 || slotIndex >= MaxSaveSlots)
-        {
-            Debug.LogError("Invalid save slot index");
-            return null;
-        }
-
-        string path = Path.Combine(Application.persistentDataPath, string.Format(BinarySaveFileNameFormat, slotIndex));
-        if (File.Exists(path))
-        {
-            using (FileStream stream = File.Open(path, FileMode.Open))
+            try
             {
-                BinaryFormatter formatter = new BinaryFormatter();
-                return (GameSaveData)formatter.Deserialize(stream);
+                string json = File.ReadAllText(path);
+                currentGameData = JsonUtility.FromJson<GameSaveData>(json);
+                Debug.Log("Game data loaded successfully");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to load game data: {e.Message}");
+                ResetGameData();
             }
         }
-        Debug.Log("Game loaded by Binary serialization");
-        return null;
+        else
+        {
+            ResetGameData();
+            Debug.Log("No save file found, created new game data");
+        }
+    }
+
+    private void ResetGameData()
+    {
+        currentGameData = new GameSaveData();
+    }
+
+    public void DeleteGameData()
+    {
+        string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
+
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+
+        currentGameData = new GameSaveData();
+        Debug.Log("Game data deleted");
+    }
+
+    public bool HasSavedGame()
+    {
+        return currentGameData?.hasSavedGame ?? false;
+    }
+
+    public GameSaveData GetGameData()
+    {
+        return currentGameData;
+    }
+
+    #endregion
+
+    #region Settings (PlayerPrefs)
+
+    public void SaveSettings(SettingsData settings)
+    {
+        currentSettings = settings;
+
+        PlayerPrefs.SetFloat(SETTINGS_PREFIX + "MusicVolume", settings.musicVolume);
+        PlayerPrefs.SetFloat(SETTINGS_PREFIX + "SFXVolume", settings.sfxVolume);
+        PlayerPrefs.SetInt(SETTINGS_PREFIX + "Fullscreen", settings.fullscreen ? 1 : 0);
+        PlayerPrefs.SetInt(SETTINGS_PREFIX + "VSync", settings.vSync ? 1 : 0);
+        PlayerPrefs.Save();
+
+        Debug.Log("Settings saved to PlayerPrefs");
+    }
+
+    public void LoadSettings()
+    {
+        currentSettings = new SettingsData
+        {
+            musicVolume = PlayerPrefs.GetFloat(SETTINGS_PREFIX + "MusicVolume", 1f),
+            sfxVolume = PlayerPrefs.GetFloat(SETTINGS_PREFIX + "SFXVolume", 1f),
+            fullscreen = PlayerPrefs.GetInt(SETTINGS_PREFIX + "Fullscreen", 1) == 1,
+            vSync = PlayerPrefs.GetInt(SETTINGS_PREFIX + "VSync", 1) == 1
+        };
+
+        Debug.Log("Settings loaded from PlayerPrefs");
+    }
+
+    public void DeleteSettings()
+    {
+        string[] settingsKeys = new string[]
+        {
+            SETTINGS_PREFIX + "MusicVolume",
+            SETTINGS_PREFIX + "SFXVolume",
+            SETTINGS_PREFIX + "Fullscreen",
+            SETTINGS_PREFIX + "VSync"
+        };
+
+        foreach (string key in settingsKeys)
+        {
+            PlayerPrefs.DeleteKey(key);
+        }
+
+        currentSettings = new SettingsData();
+        Debug.Log("Settings deleted from PlayerPrefs");
+    }
+
+    public SettingsData GetSettings()
+    {
+        return currentSettings;
+    }
+
+    #endregion
+
+    // Helper method to delete all saved data
+    public void DeleteAllData()
+    {
+        DeleteGameData();
+        DeleteSettings();
+        Debug.Log("All saved data deleted");
     }
 }

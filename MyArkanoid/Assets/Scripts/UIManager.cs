@@ -19,7 +19,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI livesText;
     public TextMeshProUGUI levelText;
-    
+    public TextMeshProUGUI highScoreText;
+
+
 
     [Header("Buttons")]
     public Button startGameButton;
@@ -30,6 +32,8 @@ public class UIManager : MonoBehaviour
     public Button nextLevelButton;
     public Button endGameMainMenuButton; // New button for EndGame screen
     public Button endGameQuitButton; // New button for EndGame screen
+    public Button continueGameButton;
+    public Button deleteSaveDataButton;
 
 
     [Header("Controlls")]
@@ -51,6 +55,7 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         SetupButtonListeners();
+        UpdateMainMenuUI();
     }
 
     private void SetupButtonListeners()
@@ -63,6 +68,8 @@ public class UIManager : MonoBehaviour
         nextLevelButton.onClick.AddListener(GameManager.Instance.StartNextLevel);
         endGameMainMenuButton.onClick.AddListener(GameManager.Instance.GoToMainMenu);
         endGameQuitButton.onClick.AddListener(GameManager.Instance.QuitGame);
+        continueGameButton?.onClick.AddListener(ContinueGame);
+        deleteSaveDataButton?.onClick.AddListener(DeleteSaveData);
     }
 
     public void ShowPanel(GameStateManager.GameState state)
@@ -153,5 +160,39 @@ public class UIManager : MonoBehaviour
     public void UpdateLevel(int level)
     {
         levelText.text = $"Level: {level}";
+    }
+
+    private void UpdateMainMenuUI()
+    {
+        if (continueGameButton != null)
+        {
+            continueGameButton.interactable = SaveManager.Instance.HasSavedGame();
+        }
+
+        if (highScoreText != null)
+        {
+            var gameData = SaveManager.Instance.GetGameData();
+            highScoreText.text = $"High Score: {gameData.highScore}";
+        }
+    }
+
+    private void ContinueGame()
+    {
+        var gameData = SaveManager.Instance.GetGameData();
+        GameManager.Instance.ContinueGame(gameData.currentLevel, gameData.currentScore, gameData.remainingLives);
+    }
+
+    private void DeleteSaveData()
+    {
+        SaveManager.Instance.DeleteAllData(); // or DeleteGameData() if you want to keep settings
+        UpdateMainMenuUI();
+    }
+
+    public void UpdateHighScore(int highScore)
+    {
+        if (highScoreText != null)
+        {
+            highScoreText.text = $"High Score: {highScore}";
+        }
     }
 }

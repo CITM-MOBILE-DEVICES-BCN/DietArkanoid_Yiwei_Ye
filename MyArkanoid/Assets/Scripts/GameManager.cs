@@ -112,6 +112,7 @@ public class GameManager : MonoBehaviour
         CurrentLevel = 1;
         IsAutoPlayEnabled = false;
         UpdateUI();
+        Debug.Log("Game initialized with default values");
     }
 
     private void SetupEventListeners()
@@ -126,6 +127,7 @@ public class GameManager : MonoBehaviour
         OnScoreChanged?.Invoke(Score);
         OnLivesChanged?.Invoke(Lives);
         OnLevelChanged?.Invoke(CurrentLevel);
+        OnAutoPlayToggled?.Invoke(IsAutoPlayEnabled);
     }
 
     public void GoToMainMenu()
@@ -138,27 +140,76 @@ public class GameManager : MonoBehaviour
         InitializeGame();
         ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
+        Debug.Log("Starting new game");
     }
 
+    // Modified to handle both new games and continued games
     private void ResetGameElements(bool resetBricks)
     {
+        // Reset ball
         BallController ballController = FindObjectOfType<BallController>();
         if (ballController != null)
         {
             ballController.ResetBall();
         }
+        else
+        {
+            Debug.LogWarning("BallController not found when resetting game elements");
+        }
 
+        // Reset paddle
         PaddleController paddleController = FindObjectOfType<PaddleController>();
         if (paddleController != null)
         {
             paddleController.OnBallReset();
         }
+        else
+        {
+            Debug.LogWarning("PaddleController not found when resetting game elements");
+        }
 
+        // Reset bricks if needed (usually true for both new game and level continue)
         if (resetBricks && brickManager != null)
         {
             brickManager.ResetBricks(CurrentLevel);
         }
+        else if (resetBricks)
+        {
+            Debug.LogWarning("BrickManager not found when resetting bricks");
+        }
+
+        // Ensure we're in the correct state
+        IsAutoPlayEnabled = false;
+
+        Debug.Log($"Game elements reset. Level: {CurrentLevel}, Reset Bricks: {resetBricks}");
     }
+
+    public void ContinueGame(int level, int score, int lives)
+    {
+        // Set the game state from saved data
+        Score = score;
+        Lives = lives;
+        CurrentLevel = level;
+
+        // Update UI
+        OnScoreChanged?.Invoke(Score);
+        OnLivesChanged?.Invoke(Lives);
+        OnLevelChanged?.Invoke(CurrentLevel);
+
+        // Reset the game elements for the current level
+        ResetGameElements(true);
+
+        // Change to gameplay state
+        ChangeGameState(GameStateManager.GameState.Gameplay);
+
+        Debug.Log($"Continuing game from Level: {level}, Score: {score}, Lives: {lives}");
+    }
+
+    public bool CanContinueGame()
+    {
+        return SaveManager.Instance.HasSavedGame();
+    }
+
 
     public void PauseGame()
     {
@@ -172,11 +223,13 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
+        SaveManager.Instance.SaveGameData();
         gameStateManager.ChangeState(GameStateManager.GameState.GameOver);
     }
 
     public void LevelCompleted()
     {
+        SaveManager.Instance.SaveGameData();
         Debug.Log($"Level {CurrentLevel} completed.");
         if (CurrentLevel >= MaxLevel)
         {
@@ -264,7 +317,8 @@ public class GameManager : MonoBehaviour
 
     private void LoadHighScore()
     {
-        HighScore = PlayerPrefs.GetInt("HighScore", 0);
+        var gameData = SaveManager.Instance.GetGameData();
+        HighScore = gameData.highScore;
     }
 
     private void SaveHighScore()
