@@ -86,6 +86,8 @@ public class GameManager : MonoBehaviour
             UpdateAutoPlay(ballController.transform.position);
 
         }
+        SaveManager.Instance.LoadGameData();
+        LoadHighScore();
 
     }
 
@@ -103,6 +105,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("BallController not found in the scene.");
         }
+
     }
 
     public void InitializeGame()
@@ -239,6 +242,9 @@ public class GameManager : MonoBehaviour
         {
             gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
         }
+        
+
+
     }
 
     public void StartNextLevel()
@@ -268,6 +274,7 @@ public class GameManager : MonoBehaviour
     {
         gameStateManager.ChangeState(newState);
         OnGameStateChanged?.Invoke(newState);
+
     }
 
     private void TogglePause()
@@ -290,7 +297,7 @@ public class GameManager : MonoBehaviour
         if (Score > HighScore)
         {
             HighScore = Score;
-            SaveHighScore();
+            //SaveHighScore();
         }
     }
 

@@ -58,6 +58,11 @@ public class UIManager : MonoBehaviour
         UpdateMainMenuUI();
     }
 
+    private void Update()
+    {
+        UpdateMainMenuUI();
+    }
+
     private void SetupButtonListeners()
     {
         startGameButton.onClick.AddListener(GameManager.Instance.StartGame);
@@ -162,7 +167,7 @@ public class UIManager : MonoBehaviour
         levelText.text = $"Level: {level}";
     }
 
-    private void UpdateMainMenuUI()
+    public void UpdateMainMenuUI()
     {
         if (continueGameButton != null)
         {
