@@ -55,7 +55,6 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         SetupButtonListeners();
-        UpdateMainMenuUI();
     }
 
     private void Update()

@@ -86,7 +86,6 @@ public class GameManager : MonoBehaviour
             UpdateAutoPlay(ballController.transform.position);
 
         }
-        SaveManager.Instance.LoadGameData();
         LoadHighScore();
 
     }
@@ -135,11 +134,14 @@ public class GameManager : MonoBehaviour
 
     public void GoToMainMenu()
     {
+
         InitializeGame(); // Reset game state when returning to main menu
         gameStateManager.ChangeState(GameStateManager.GameState.MainMenu);
+        SaveManager.Instance.LoadGameData();
     }
     public void StartGame()
     {
+        SaveManager.Instance.LoadGameData();
         InitializeGame();
         ResetGameElements(true);
         ChangeGameState(GameStateManager.GameState.Gameplay);
