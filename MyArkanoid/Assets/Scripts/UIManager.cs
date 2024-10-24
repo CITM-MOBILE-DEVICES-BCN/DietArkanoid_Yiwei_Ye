@@ -34,6 +34,7 @@ public class UIManager : MonoBehaviour
     public Button endGameQuitButton; // New button for EndGame screen
     public Button continueGameButton;
     public Button deleteSaveDataButton;
+    public Button autoPlayToggleButton;
 
 
     [Header("Controlls")]
@@ -74,6 +75,8 @@ public class UIManager : MonoBehaviour
         endGameQuitButton.onClick.AddListener(GameManager.Instance.QuitGame);
         continueGameButton?.onClick.AddListener(ContinueGame);
         deleteSaveDataButton?.onClick.AddListener(DeleteSaveData);
+        autoPlayToggleButton?.onClick.AddListener(ToggleAutoPlay);
+
     }
 
     public void ShowPanel(GameStateManager.GameState state)
@@ -178,6 +181,11 @@ public class UIManager : MonoBehaviour
             var gameData = SaveManager.Instance.GetGameData();
             highScoreText.text = $"High Score: {gameData.highScore}";
         }
+
+        if(autoPlayToggleButton != null)
+        {
+            autoPlayToggleButton.interactable = true;
+        }
     }
 
     private void ContinueGame()
@@ -198,5 +206,11 @@ public class UIManager : MonoBehaviour
         {
             highScoreText.text = $"High Score: {highScore}";
         }
+    }
+
+    private void ToggleAutoPlay()
+    {
+
+        GameManager.Instance.ToggleAutoPlay();
     }
 }

@@ -79,11 +79,13 @@ public class GameManager : MonoBehaviour
         {
             ToggleAutoPlay();
             OnAutoPlayToggled?.Invoke(IsAutoPlayEnabled);
+
         }
 
         if(IsAutoPlayEnabled == true)
         {
             UpdateAutoPlay(ballController.transform.position);
+
 
         }
         LoadHighScore();
