@@ -16,6 +16,8 @@ public class BallController : MonoBehaviour
     private float currentSpeed;
     private Coroutine launchCoroutine;
 
+    AudioManager audioManager;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -95,7 +97,6 @@ public class BallController : MonoBehaviour
             ResetBall();
             StartLaunchSequence();
         }
-
     }
 
     private void FixedUpdate()
@@ -146,6 +147,9 @@ public class BallController : MonoBehaviour
                 Destroy(brick.gameObject);
             }
         }
+        AudioManager.instance.PlaySoundFXClip(AudioManager.instance.hit, transform, 0.5f);
+
+
     }
 
     private void HandlePaddleCollision(Collision2D collision)
