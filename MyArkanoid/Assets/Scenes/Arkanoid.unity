@@ -5621,7 +5621,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.9416773}
   m_AnchorMax: {x: 0.5, y: 0.9416773}
-  m_AnchoredPosition: {x: 6.97, y: -36.376007}
+  m_AnchoredPosition: {x: 6.97, y: -36.375977}
   m_SizeDelta: {x: 90.74, y: 109.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1523249062
@@ -6157,7 +6157,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backgroundMusicSource: {fileID: 998562465}
   sfxSource: {fileID: 276121059}
-  backgroundMusic: {fileID: 8300000, guid: 34afbcbf39a95e24e88875281b3b3fa0, type: 3}
+  backgroundMusic: {fileID: 8300000, guid: ef5404aba29d5694785bd67e9db033de, type: 3}
   select: {fileID: 8300000, guid: 29bde6326b4c34ad8a12da475f79b50a, type: 3}
   hit: {fileID: 8300000, guid: 19f89c6e740e7447f9e12a8310d3e973, type: 3}
   die: {fileID: 8300000, guid: a0010a1a0c474473b81729eb770c485f, type: 3}
