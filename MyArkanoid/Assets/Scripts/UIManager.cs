@@ -65,18 +65,22 @@ public class UIManager : MonoBehaviour
 
     private void SetupButtonListeners()
     {
-        startGameButton.onClick.AddListener(GameManager.Instance.StartGame);
-        resumeButton.onClick.AddListener(GameManager.Instance.ResumeGame);
-        restartButton.onClick.AddListener(GameManager.Instance.StartGame);
-        quitButton.onClick.AddListener(Application.Quit);
-        goBackToMainMenu.onClick.AddListener(GameManager.Instance.GoToMainMenu);
-        nextLevelButton.onClick.AddListener(GameManager.Instance.StartNextLevel);
-        endGameMainMenuButton.onClick.AddListener(GameManager.Instance.GoToMainMenu);
-        endGameQuitButton.onClick.AddListener(GameManager.Instance.QuitGame);
-        continueGameButton?.onClick.AddListener(ContinueGame);
-        deleteSaveDataButton?.onClick.AddListener(DeleteSaveData);
-        autoPlayToggleButton?.onClick.AddListener(ToggleAutoPlay);
+        startGameButton.onClick.AddListener(() => { GameManager.Instance.StartGame(); PlayButtonClickSound(); });
+        resumeButton.onClick.AddListener(() => { GameManager.Instance.ResumeGame(); PlayButtonClickSound(); });
+        restartButton.onClick.AddListener(() => { GameManager.Instance.StartGame(); PlayButtonClickSound(); });
+        quitButton.onClick.AddListener(() => { Application.Quit(); PlayButtonClickSound(); });
+        goBackToMainMenu.onClick.AddListener(() => { GameManager.Instance.GoToMainMenu(); PlayButtonClickSound(); });
+        nextLevelButton.onClick.AddListener(() => { GameManager.Instance.StartNextLevel(); PlayButtonClickSound(); });
+        endGameMainMenuButton.onClick.AddListener(() => { GameManager.Instance.GoToMainMenu(); PlayButtonClickSound(); });
+        endGameQuitButton.onClick.AddListener(() => { GameManager.Instance.QuitGame(); PlayButtonClickSound(); });
+        continueGameButton?.onClick.AddListener(() => { ContinueGame(); PlayButtonClickSound(); });
+        deleteSaveDataButton?.onClick.AddListener(() => { DeleteSaveData(); PlayButtonClickSound(); });
+        autoPlayToggleButton?.onClick.AddListener(() => { ToggleAutoPlay(); PlayButtonClickSound(); });
+    }
 
+    private void PlayButtonClickSound()
+    {
+        AudioManager.instance.PlaySoundFXClip(AudioManager.instance.select, transform, 0.5f);
     }
 
     public void ShowPanel(GameStateManager.GameState state)

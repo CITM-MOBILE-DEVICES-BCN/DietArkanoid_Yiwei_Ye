@@ -264,6 +264,8 @@ public class GameManager : MonoBehaviour
     private void EndGame()
     {
         ChangeGameState(GameStateManager.GameState.EndGame);
+        AudioManager.instance.PlaySoundFXClip(AudioManager.instance.endgame, transform, 0.5f);
+
     }
 
     public void QuitGame()
@@ -311,6 +313,9 @@ public class GameManager : MonoBehaviour
 
     public void LoseLife()
     {
+        AudioManager.instance.PlaySoundFXClip(AudioManager.instance.die, transform, 0.5f);
+
+
         Lives--;
         OnLivesChanged?.Invoke(Lives);
 

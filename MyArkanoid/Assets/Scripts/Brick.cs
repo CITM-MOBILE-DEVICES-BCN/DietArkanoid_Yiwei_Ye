@@ -41,6 +41,8 @@ public class Brick : MonoBehaviour
             if (hitPoints <= 0)
             {
                 DestroyBrick();
+                AudioManager.instance.PlaySoundFXClip(AudioManager.instance.breaks, transform, 0.6f);
+
             }
             else
             {
@@ -60,6 +62,7 @@ public class Brick : MonoBehaviour
         }
         GameManager.Instance.AddScore(scoreValue);
         Destroy(gameObject);
+
     }
 
     protected virtual void UpdateColor()

@@ -645,7 +645,7 @@ AudioSource:
   m_GameObject: {fileID: 276121058}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 5760326983618322990, guid: 5f404f5d5a02c7749ade9237412cdbd8, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -3538,7 +3538,7 @@ AudioSource:
   m_GameObject: {fileID: 998562464}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 8599441185028416522, guid: 5f404f5d5a02c7749ade9237412cdbd8, type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
@@ -5893,6 +5893,9 @@ MonoBehaviour:
   hit: {fileID: 8300000, guid: 19f89c6e740e7447f9e12a8310d3e973, type: 3}
   die: {fileID: 8300000, guid: a0010a1a0c474473b81729eb770c485f, type: 3}
   complete: {fileID: 8300000, guid: 7bd6b897eb5ca4b7d88a205c4a51640c, type: 3}
+  breaks: {fileID: 8300000, guid: dc2cbadab73422743b21b790ce71226a, type: 3}
+  gameover: {fileID: 8300000, guid: 4b4dd7245f6104c8c8eb07ccf6b386ed, type: 3}
+  endgame: {fileID: 8300000, guid: 2667a0a008b044e218b63df62e2be749, type: 3}
 --- !u!4 &1711285328
 Transform:
   m_ObjectHideFlags: 0

@@ -7,5 +7,6 @@ public class NormalBrick : Brick
         base.Awake();
         isBreakable = true;
         hitPoints = 1;
+        scoreValue = 10;
     }
 }

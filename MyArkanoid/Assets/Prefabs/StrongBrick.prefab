@@ -175,6 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c32bdfcd3b38bc4bb14f352aab762ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitPoints: 1
-  scoreValue: 10
+  baseHitPoints: 1
+  baseScoreValue: 10
   stateColors: []
+  isBreakable: 1
