@@ -246,8 +246,9 @@ public class GameManager : MonoBehaviour
         {
             gameStateManager.ChangeState(GameStateManager.GameState.LevelCompleted);
         }
-        
 
+
+        AudioManager.instance.PlaySoundFXClip(AudioManager.instance.complete, transform, 0.5f);
 
     }
 
@@ -291,6 +292,9 @@ public class GameManager : MonoBehaviour
         {
             ResumeGame();
         }
+
+        AudioManager.instance.PlaySoundFXClip(AudioManager.instance.select, transform, 0.5f);
+
     }
 
     public void AddScore(int points)

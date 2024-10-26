@@ -18,6 +18,9 @@ public class AudioManager : MonoBehaviour
     public AudioClip hit;
     public AudioClip die;
     public AudioClip complete;
+    public AudioClip breaks;
+    public AudioClip gameover;
+    public AudioClip endgame;
 
 
     private void Awake()
