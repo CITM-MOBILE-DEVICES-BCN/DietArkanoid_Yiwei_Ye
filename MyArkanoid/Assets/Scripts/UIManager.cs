@@ -26,6 +26,7 @@ public class UIManager : MonoBehaviour
     [Header("Buttons")]
     public Button startGameButton;
     public Button resumeButton;
+    public Button pauseButton;
     public Button restartButton;
     public Button quitButton;
     public Button goBackToMainMenu;
@@ -67,6 +68,7 @@ public class UIManager : MonoBehaviour
     {
         startGameButton.onClick.AddListener(() => { GameManager.Instance.StartGame(); PlayButtonClickSound(); });
         resumeButton.onClick.AddListener(() => { GameManager.Instance.ResumeGame(); PlayButtonClickSound(); });
+        pauseButton.onClick.AddListener(() => { GameManager.Instance.PauseGame(); PlayButtonClickSound(); });
         restartButton.onClick.AddListener(() => { GameManager.Instance.StartGame(); PlayButtonClickSound(); });
         quitButton.onClick.AddListener(() => { Application.Quit(); PlayButtonClickSound(); });
         goBackToMainMenu.onClick.AddListener(() => { GameManager.Instance.GoToMainMenu(); PlayButtonClickSound(); });
