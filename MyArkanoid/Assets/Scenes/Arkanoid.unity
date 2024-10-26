@@ -3233,7 +3233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9072575430257837178, guid: 89a05c24456ad5c4ab994be98b954e81, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.23
+      value: -10.94
       objectReference: {fileID: 0}
     - target: {fileID: 9072575430257837178, guid: 89a05c24456ad5c4ab994be98b954e81, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3241,7 +3241,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9072575430257837178, guid: 89a05c24456ad5c4ab994be98b954e81, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.58
       objectReference: {fileID: 0}
     - target: {fileID: 9072575430257837178, guid: 89a05c24456ad5c4ab994be98b954e81, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4498,7 +4498,7 @@ MonoBehaviour:
   controlSlider: {fileID: 1290216306}
   maxBounceAngle: 75
   verticalOffset: 1.3
-  horizontalEdgeOffset: -0.4
+  horizontalEdgeOffset: -0.6
 --- !u!61 &1271991829
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5848,11 +5848,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1947782668151833979, guid: cc64719c4ca042c469bff9fa6ee6226d, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 25.2
+      value: 27.19
       objectReference: {fileID: 0}
     - target: {fileID: 1947782668151833979, guid: cc64719c4ca042c469bff9fa6ee6226d, type: 3}
       propertyPath: m_SizeDelta.y
-      value: -3.39
+      value: -9.3
       objectReference: {fileID: 0}
     - target: {fileID: 1947782668151833979, guid: cc64719c4ca042c469bff9fa6ee6226d, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -5860,7 +5860,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1947782668151833979, guid: cc64719c4ca042c469bff9fa6ee6226d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 1.6949997
+      value: -0.0000076293945
       objectReference: {fileID: 0}
     - target: {fileID: 4903934697259464881, guid: cc64719c4ca042c469bff9fa6ee6226d, type: 3}
       propertyPath: m_Name
